@@ -2,8 +2,6 @@
 @import "tw-animate-css";
 @import "shadcn/tailwind.css";
 
-@custom-variant dark (&:is(.dark *));
-
 @theme inline {
   --color-background: var(--background);
   --color-foreground: var(--foreground);
@@ -49,72 +47,62 @@
 }
 
 :root {
-  --background: oklch(1 0 0);
-  --foreground: oklch(0.145 0 0);
-  --card: oklch(1 0 0);
-  --card-foreground: oklch(0.145 0 0);
-  --popover: oklch(1 0 0);
-  --popover-foreground: oklch(0.145 0 0);
-  --primary: oklch(0.205 0 0);
-  --primary-foreground: oklch(0.985 0 0);
-  --secondary: oklch(0.97 0 0);
-  --secondary-foreground: oklch(0.205 0 0);
-  --muted: oklch(0.97 0 0);
-  --muted-foreground: oklch(0.556 0 0);
-  --accent: oklch(0.97 0 0);
-  --accent-foreground: oklch(0.205 0 0);
-  --destructive: oklch(0.577 0.245 27.325);
-  --border: oklch(0.922 0 0);
-  --input: oklch(0.922 0 0);
-  --ring: oklch(0.708 0 0);
-  --chart-1: oklch(0.87 0 0);
-  --chart-2: oklch(0.556 0 0);
-  --chart-3: oklch(0.439 0 0);
-  --chart-4: oklch(0.371 0 0);
-  --chart-5: oklch(0.269 0 0);
-  --radius: 0.625rem;
-  --sidebar: oklch(0.985 0 0);
-  --sidebar-foreground: oklch(0.145 0 0);
-  --sidebar-primary: oklch(0.205 0 0);
-  --sidebar-primary-foreground: oklch(0.985 0 0);
-  --sidebar-accent: oklch(0.97 0 0);
-  --sidebar-accent-foreground: oklch(0.205 0 0);
-  --sidebar-border: oklch(0.922 0 0);
-  --sidebar-ring: oklch(0.708 0 0);
-}
+  /* Core Backgrounds */
+  --background: #0f1117;     /* The very outer body background */
+  --foreground: #d1d5db;     /* Main text color */
 
-.dark {
-  --background: oklch(0.145 0 0);
-  --foreground: oklch(0.985 0 0);
-  --card: oklch(0.205 0 0);
-  --card-foreground: oklch(0.985 0 0);
-  --popover: oklch(0.205 0 0);
-  --popover-foreground: oklch(0.985 0 0);
-  --primary: oklch(0.922 0 0);
-  --primary-foreground: oklch(0.205 0 0);
-  --secondary: oklch(0.269 0 0);
-  --secondary-foreground: oklch(0.985 0 0);
-  --muted: oklch(0.269 0 0);
-  --muted-foreground: oklch(0.708 0 0);
-  --accent: oklch(0.269 0 0);
-  --accent-foreground: oklch(0.985 0 0);
-  --destructive: oklch(0.704 0.191 22.216);
-  --border: oklch(1 0 0 / 10%);
-  --input: oklch(1 0 0 / 15%);
-  --ring: oklch(0.556 0 0);
-  --chart-1: oklch(0.87 0 0);
-  --chart-2: oklch(0.556 0 0);
-  --chart-3: oklch(0.439 0 0);
-  --chart-4: oklch(0.371 0 0);
-  --chart-5: oklch(0.269 0 0);
-  --sidebar: oklch(0.205 0 0);
-  --sidebar-foreground: oklch(0.985 0 0);
-  --sidebar-primary: oklch(0.488 0.243 264.376);
-  --sidebar-primary-foreground: oklch(0.985 0 0);
-  --sidebar-accent: oklch(0.269 0 0);
-  --sidebar-accent-foreground: oklch(0.985 0 0);
-  --sidebar-border: oklch(1 0 0 / 10%);
-  --sidebar-ring: oklch(0.556 0 0);
+  /* Cards & App Canvas */
+  --card: #1a1d27;           /* Main editor / app wrapper background */
+  --card-foreground: #d1d5db;
+
+  /* Popovers (Matching Sidebar for consistency) */
+  --popover: #141720;
+  --popover-foreground: #e2e8f0;
+
+  /* Primary Brand (Your active blue) */
+  --primary: #378ADD;
+  --primary-foreground: #ffffff;
+
+  /* Secondary & Hover states */
+  --secondary: #1f2335;
+  --secondary-foreground: #e2e8f0;
+
+  /* Muted states (Inactive items) */
+  --muted: #1f2335;
+  --muted-foreground: #9ca3af;
+
+  /* Accents (Tree item hovers, buttons) */
+  --accent: #1f2335;
+  --accent-foreground: #e2e8f0;
+
+  /* Destructive (Derived from the Meetings red icon) */
+  --destructive: #993556;
+  --destructive-foreground: #ffffff;
+
+  /* Borders & Inputs */
+  --border: #2a2d3a;
+  --input: #2a2d3a;
+  --ring: #378ADD;
+
+  /* Sidebar Specifics */
+  --sidebar: #141720;
+  --sidebar-foreground: #9ca3af;
+  --sidebar-primary: #378ADD;
+  --sidebar-primary-foreground: #ffffff;
+  --sidebar-accent: #1f2335;
+  --sidebar-accent-foreground: #e2e8f0;
+  --sidebar-border: #2a2d3a;
+  --sidebar-ring: #378ADD;
+
+  /* Chart Colors (Mapped nicely to your folder icon palette) */
+  --chart-1: #378ADD; /* Work Blue */
+  --chart-2: #639922; /* Projects Green */
+  --chart-3: #BA7517; /* Design Amber */
+  --chart-4: #993556; /* Meetings Red */
+  --chart-5: #534AB7; /* Personal Purple */
+
+  /* Border Radius (8px is standard in your mockup) */
+  --radius: 0.5rem;
 }
 
 @layer base {
