@@ -10,7 +10,7 @@ import { useEffect } from "react"
 const Sidebar = ({nodes} : { nodes: {folders:Folder[], notes:Note[]}}) => {
 
   const initilizeNoteStore = useNoteStore(state => state.initilizeNoteStore);
-
+  const rootNodes = useNoteStore(state => state.nodes)
   useEffect(() => {
     initilizeNoteStore(nodes.folders,nodes.notes);
   },[nodes, initilizeNoteStore])
@@ -58,7 +58,7 @@ const Sidebar = ({nodes} : { nodes: {folders:Folder[], notes:Note[]}}) => {
     <div className="w-64 h-screen bg-sidebar p-4 overflow-y-auto">
       <h2 className="text-xl font-bold mb-4">Sidebar</h2>
       <div className="flex flex-col gap-2">
-        {nodes.folders.map((folder) => renderItem(folder))}
+        {rootNodes.map((node) => renderItem(node))}
       </div>
 
     </div> 
