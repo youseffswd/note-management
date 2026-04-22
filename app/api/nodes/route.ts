@@ -1,4 +1,16 @@
-export function GET(request: Request) {
+import { createServerSupabase } from "@/lib/supabase/server";
+
+
+
+
+export async function GET(request: Request) {
+
+    const supabase = await createServerSupabase()
+    const { data, error } = await supabase
+    .from('notes')
+    .select('*')
+    console.log('Supabase data:', data)
+    console.log('Supabase error:', error)
     const folders: Folder[] = [
         // Day 1 Morning Session
         {
