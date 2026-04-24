@@ -23,15 +23,14 @@ export default async function RootLayout({
 }: Readonly<{
   children: React.ReactNode;
 }>) {
-  const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/nodes`)
-  const nodes: { folders: Folder[]; notes: Note[] } = await response.json()
+
   return (
     <html
       lang="en"
       className={`${geistSans.variable} ${geistMono.variable} h-full antialiased`}
     >
       <body className="min-h-full flex flex-col bg-background">
-        <Sidebar nodes={nodes} />
+        <Sidebar />
         {children}
       </body>
     </html>

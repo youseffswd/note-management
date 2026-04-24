@@ -1,11 +1,13 @@
 interface Note {
     id: string;
     title: string;
-    description: string;
-    content: string;
-    parentId: string | null;
-    createdAt: Date;
+    description: string;//
+    content: string;//
+    parentId: string | null;//
+    createdAt: Date;//
     updatedAt?: Date;
+    userId: string;
+    type: "note";
 }
 
 interface Folder {
@@ -15,4 +17,7 @@ interface Folder {
     children: (Folder | Note)[];
     createdAt: Date;
     updatedAt?: Date;
+    userId: string;
+    type: "folder";
+    colorClass: string;
 }

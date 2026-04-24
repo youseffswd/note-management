@@ -8,7 +8,8 @@ type Node = Folder | Note;
 interface NoteStore { 
   nodes: Node[];
   nodesHash: Record<string, Node>;
-  initilizeNoteStore: (folders: Folder[], notes: Note[]) => void;
+  loading:boolean;
+  initilizeNoteStore: () => void;
 }
 
 
@@ -17,7 +18,11 @@ interface NoteStore {
 const useNoteStore = create<NoteStore>()(immer((set, get) => ({
   nodes: [],
   nodesHash: {},
-  initilizeNoteStore: (folders: Folder[], notes: Note[]) => {
+  loading: false,
+  initilizeNoteStore: async () => {
+    set({loading:true})
+    const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/nodes`);
+    const { folders, notes }: { folders: Folder[]; notes: Note[] } = await response.json();
     const allNodes = [...folders, ...notes].sort(
       (a, b) => new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime(),
     );
@@ -36,7 +41,7 @@ const useNoteStore = create<NoteStore>()(immer((set, get) => ({
         parentNode.children.push(node);
       }
     }
-    set({ nodes: nestedNodes, nodesHash });
+    set({ nodes: nestedNodes, nodesHash, loading: false });
   },
 
 })));
