@@ -1,0 +1,44 @@
+import { createServerSupabase } from "@/lib/supabase/server";
+import { ResponseError } from "@/lib/errors";
+
+export async function login(email: string, password: string) {
+    const supabase = await createServerSupabase();
+    const { data, error } = await supabase.auth.signInWithPassword({
+        email,
+        password,
+    });
+
+    if (error) {
+        console.log(error);
+        console.error("Login error:", error);
+        throw new ResponseError(error.message, error.status || 500);
+    }
+    return data;
+}
+export async function signUp(email: string, password: string,fullName: string) {
+    const supabase = await createServerSupabase();
+    const { data, error } = await supabase.auth.signUp({
+        email,
+        password,
+        options: {
+            data: {
+                full_name: fullName
+            }
+        }
+    });
+
+    if (error) {
+        console.error("Sign up error:", error);
+        throw new ResponseError(error.message, error.status || 500);
+    }
+    return data;
+}
+export async function logout() {
+    const supabase = await createServerSupabase();
+    const { error } = await supabase.auth.signOut();
+    if (error) {
+        console.error("Logout error:", error);
+        throw new ResponseError(error.message, error.status || 500);
+    }
+}
+export async function deleteAccount() {}
