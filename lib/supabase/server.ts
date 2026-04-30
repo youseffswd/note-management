@@ -28,3 +28,27 @@ export async function createServerSupabase() {
     }
   )
 }
+
+export async function getUser() {
+  const supabase = await createServerSupabase();
+  const { data: { user }, error } = await supabase.auth.getUser();
+  
+  if (error || !user) {
+    console.error("Error fetching user:", error);
+    return null;
+  }
+
+  return user;
+}
+
+export async function getSession() {
+  const supabase = await createServerSupabase();
+  const { data: { session }, error } = await supabase.auth.getSession();
+  
+  if (error || !session) {
+    console.error("Error fetching session:", error);
+    return null;
+  }
+
+  return session;
+}
