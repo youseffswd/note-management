@@ -1,6 +1,6 @@
 
 import { type NextRequest } from "next/server";
-import { updateSession } from "@/lib/supabase/proxy";
+import { updateSession } from "@/shared/lib/supabase/proxy";
 
 export async function proxy(request: NextRequest) {
   // Pass the request to our Supabase utility to refresh cookies

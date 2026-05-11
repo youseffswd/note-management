@@ -1,5 +1,5 @@
-import { getNodes } from "@/lib/db/nodes";
-import { ResponseError } from "@/lib/errors";
+import { getNodes } from "@/features/nodes/api/nodes.service";
+import { ResponseError } from "@/shared/lib/errors";
 
 
 
@@ -20,7 +20,7 @@ export async function GET(request: Request) {
     return new Response(
       JSON.stringify({ error: error instanceof Error ? error.message : "Unknown error" }),
       {
-        status: error instanceof ResponseError ? error.status : 500,
+        status: (error as any) instanceof ResponseError ? (error as any).status : 500,
         headers: { "Content-Type": "application/json" },
       },
     );

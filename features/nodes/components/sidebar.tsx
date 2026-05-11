@@ -1,13 +1,13 @@
 "use client";
 
-import { Button } from "@/components/ui/button";
+import { Button } from "@/shared/components/ui/button";
 import {
     Collapsible,
     CollapsibleContent,
     CollapsibleTrigger,
-} from "@/components/ui/collapsible";
+} from "@/shared/components/ui/collapsible";
 
-import useNoteStore from "@/store/note-management";
+import useNoteStore from "@/features/nodes/store/nodes.store";
 import { ChevronRightIcon, FileIcon, FolderIcon } from "lucide-react";
 import { useEffect } from "react";
 

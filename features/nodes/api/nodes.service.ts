@@ -1,5 +1,5 @@
-import { createServerSupabase, getUser } from "@/lib/supabase/server";
-import { ResponseError } from "@/lib/errors";
+import { createServerSupabase, getUser } from "@/shared/lib/supabase/server";
+import { ResponseError } from "@/shared/lib/errors";
 
 export async function getNodes(): Promise<{
     folders: Folder[];

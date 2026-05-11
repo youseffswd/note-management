@@ -1,5 +1,5 @@
-import { createServerSupabase } from "@/lib/supabase/server";
-import { ResponseError } from "@/lib/errors";
+import { createServerSupabase } from "@/shared/lib/supabase/server";
+import { ResponseError } from "@/shared/lib/errors";
 
 export async function login(email: string, password: string) {
     const supabase = await createServerSupabase();

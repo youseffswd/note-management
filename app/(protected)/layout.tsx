@@ -1,4 +1,4 @@
-import Sidebar from "@/components/sidebar/sidebar";
+import Sidebar from "@/features/nodes/components/sidebar";
 
 
 export default async function ProtectedLayout({
