@@ -47,61 +47,74 @@
 }
 
 :root {
-  /* Core Backgrounds */
-  --background: #0f1117;     /* The very outer body background */
-  --foreground: #d1d5db;     /* Main text color */
+  /* Core Backgrounds (from first theme) */
+  --background: #0c0e14;
+  --foreground: #e8eaf0;
 
   /* Cards & App Canvas */
-  --card: #1a1d27;           /* Main editor / app wrapper background */
-  --card-foreground: #d1d5db;
+  --card: #161926;
+  --card-foreground: #e8eaf0;
 
-  /* Popovers (Matching Sidebar for consistency) */
-  --popover: #141720;
-  --popover-foreground: #e2e8f0;
+  /* Popovers */
+  --popover: #111420;
+  --popover-foreground: #e8eaf0;
 
-  /* Primary Brand (Your active blue) */
-  --primary: #378ADD;
+  /* Primary Brand (first theme accent blue) */
+  --primary: #4f8ef7;
   --primary-foreground: #ffffff;
 
   /* Secondary & Hover states */
-  --secondary: #1f2335;
-  --secondary-foreground: #e2e8f0;
+  --secondary: #1c2033;
+  --secondary-foreground: #8890a8;
 
-  /* Muted states (Inactive items) */
-  --muted: #1f2335;
-  --muted-foreground: #9ca3af;
+  /* Muted states */
+  --muted: #111420;
+  --muted-foreground: #4e566e;
 
-  /* Accents (Tree item hovers, buttons) */
-  --accent: #1f2335;
-  --accent-foreground: #e2e8f0;
+  /* Accents */
+  --accent: #1e2438;
+  --accent-foreground: #e8eaf0;
 
-  /* Destructive (Derived from the Meetings red icon) */
-  --destructive: #993556;
+  /* Destructive (first theme red) */
+  --destructive: #f05555;
   --destructive-foreground: #ffffff;
 
   /* Borders & Inputs */
-  --border: #2a2d3a;
-  --input: #2a2d3a;
-  --ring: #378ADD;
+  --border: #21263a;
+  --input: #141726;
+  --ring: #4f8ef7;
 
-  /* Sidebar Specifics */
-  --sidebar: #141720;
-  --sidebar-foreground: #9ca3af;
-  --sidebar-primary: #378ADD;
+  /* Sidebar */
+  --sidebar: #0f1119;
+  --sidebar-foreground: #8890a8;
+  --sidebar-primary: #4f8ef7;
   --sidebar-primary-foreground: #ffffff;
-  --sidebar-accent: #1f2335;
-  --sidebar-accent-foreground: #e2e8f0;
-  --sidebar-border: #2a2d3a;
-  --sidebar-ring: #378ADD;
+  --sidebar-accent: #1e2438;
+  --sidebar-accent-foreground: #e8eaf0;
+  --sidebar-border: #21263a;
+  --sidebar-ring: #4f8ef7;
 
-  /* Chart Colors (Mapped nicely to your folder icon palette) */
-  --chart-1: #378ADD; /* Work Blue */
-  --chart-2: #639922; /* Projects Green */
-  --chart-3: #BA7517; /* Design Amber */
-  --chart-4: #993556; /* Meetings Red */
-  --chart-5: #534AB7; /* Personal Purple */
+  /* Chart Colors (mapped to first theme palette) */
+  --chart-1: #4f8ef7; /* Blue */
+  --chart-2: #5dba7f; /* Green */
+  --chart-3: #f0a030; /* Amber */
+  --chart-4: #f05555; /* Red */
+  --chart-5: #9d7cf4; /* Purple */
 
-  /* Border Radius (8px is standard in your mockup) */
+  /* Extra semantic colors from first theme (optional utilities) */
+  --amber: #f0a030;
+  --amber-dim: #3d2800;
+  --green: #5dba7f;
+  --green-dim: #143320;
+  --purple: #9d7cf4;
+  --purple-dim: #2a1660;
+  --red: #f05555;
+  --red-dim: #3d1010;
+  --text-secondary: #8890a8;
+  --text-muted: #4e566e;
+  --text-disabled: #353d55;
+
+  /* Border Radius (first theme values) */
   --radius: 0.5rem;
 }
 
