@@ -1,33 +1,30 @@
 import { getNodes } from "@/features/nodes/api/nodes.service";
 import { ResponseError } from "@/shared/lib/errors";
 
-
-
 export const dynamic = "force-dynamic";
 
 export async function GET(request: Request) {
-
-  try {
-    const data = await getNodes();
-    return new Response(
-      JSON.stringify(data),
-      {
-        headers: { "Content-Type": "application/json" },
-      },
-    );
-  } catch (error) {
-    console.error("Error fetching nodes:", error);
-    return new Response(
-      JSON.stringify({ error: error instanceof Error ? error.message : "Unknown error" }),
-      {
-        status: (error as any) instanceof ResponseError ? (error as any).status : 500,
-        headers: { "Content-Type": "application/json" },
-      },
-    );
-  }
+    try {
+        const data = await getNodes();
+        return new Response(JSON.stringify(data), {
+            headers: { "Content-Type": "application/json" },
+        });
+    } catch (error) {
+        console.error("Error fetching nodes:", error);
+        return new Response(
+            JSON.stringify({
+                error: error instanceof Error ? error.message : "Unknown error",
+            }),
+            {
+                status:
+                    (error as any) instanceof ResponseError
+                        ? (error as any).status
+                        : 500,
+                headers: { "Content-Type": "application/json" },
+            },
+        );
+    }
 }
-
-
 
 // export async function POST(request: Request) {
 //     const supabase = await createServerSupabase();
@@ -54,7 +51,7 @@ export async function GET(request: Request) {
 //         colorClass: folder.colorClass,
 //       })
 //     }
-    
+
 //     if(response.error){
 //       console.error("Error inserting data:", response.error);
 //       return new Response(
@@ -74,4 +71,3 @@ export async function GET(request: Request) {
 //       },
 //     )
 // }
-

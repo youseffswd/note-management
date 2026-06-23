@@ -1,5 +1,4 @@
-import Sidebar from "@/features/nodes/components/sidebar";
-
+import { Sidebar } from "@/features/nodes";
 
 export default async function ProtectedLayout({
     children,

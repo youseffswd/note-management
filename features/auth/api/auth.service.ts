@@ -9,7 +9,6 @@ export async function login(email: string, password: string) {
     });
 
     if (error) {
-        console.log(error);
         console.error("Login error:", error);
         throw new ResponseError(error.message, error.status || 500);
     }
@@ -31,6 +30,11 @@ export async function signUp(email: string, password: string,fullName: string) {
         console.error("Sign up error:", error);
         throw new ResponseError(error.message, error.status || 500);
     }
+    
+    if (data.user && data.user.identities && data.user.identities.length === 0) {
+        throw new ResponseError("An account with this email already exists.", 400);
+    }
+
     return data;
 }
 export async function logout() {

@@ -1,0 +1,1 @@
+export { SignUpCard } from "./components/sign-up/SignUpCard";
