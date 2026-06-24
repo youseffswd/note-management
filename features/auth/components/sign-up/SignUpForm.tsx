@@ -5,7 +5,7 @@ import {
 } from "@/shared/components/ui/field";
 
 import AuthInput from "../AuthInput";
-import PasswordInput from "./PasswordInput";
+import PasswordInput from "../PasswordInput";
 
 
 import { useActionState } from "react";

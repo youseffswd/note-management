@@ -37,7 +37,7 @@ export async function signUp(email: string, password: string,fullName: string) {
 
     return data;
 }
-export async function logout() {
+export async function logOut() {
     const supabase = await createServerSupabase();
     const { error } = await supabase.auth.signOut();
     if (error) {

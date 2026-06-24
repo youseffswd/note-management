@@ -1,5 +1,6 @@
 import { create } from "zustand";
 import { immer } from "zustand/middleware/immer";
+import type { User } from "@supabase/supabase-js";
 
 
 export interface SignUpStore extends Fields,FieldSetters {
@@ -42,6 +43,34 @@ export const useSignUpStore = create<SignUpStore>()(
     }))
 );
 
+export interface SignInStore extends SignInFields, SignInFieldSetters {
+    errors?: {
+        [k in keyof SignInFields]?: string[]
+    };
+    message?: string;
+    clearStore: () => void;
+}
+
+export const useSignInStore = create<SignInStore>()(
+    immer((set) => ({
+        email: "",
+        setEmail: (email) => set((state) => { state.email = email; }),
+        password: "",
+        setPassword: (password) => set((state) => { state.password = password; }),
+        errors: {},
+        setFieldError: (field, error) => set((state) => { 
+            if (!state.errors) state.errors = {};
+            state.errors[field] = error; 
+        }),
+        message: "",
+        clearStore: () => set((state) => {
+            state.email = "";
+            state.password = "";
+            state.errors = {};
+            state.message = "";
+        }),
+    }))
+);
 
 export interface AuthStore {
     user: User | null;

@@ -19,3 +19,17 @@ type SignUpState = {
     fields?: Partial<Fields>;
     message?: string;
 };
+
+type SignInFields = Pick<Fields, "email" | "password">
+
+interface SignInFieldSetters {
+    setEmail: (email: string) => void;
+    setPassword: (password: string) => void;
+    setFieldError: (field: keyof SignInFields, errors: string[] | undefined) => void;
+}
+
+type SignInState = {
+    errors?: { [k in keyof SignInFields]?: string[] };
+    fields?: Partial<SignInFields>;
+    message?: string;
+};

@@ -8,8 +8,9 @@ import {
 } from "@/shared/components/ui/collapsible";
 
 import useNoteStore from "@/features/nodes/store/nodes.store";
-import { ChevronRightIcon, FileIcon, FolderIcon } from "lucide-react";
+import { ChevronRightIcon, FileIcon, FolderIcon, LogOutIcon } from "lucide-react";
 import { useEffect } from "react";
+import { logOutAction } from "@/features/auth";
 
 const Sidebar = () => {
     const initilizeNoteStore = useNoteStore(state => state.initilizeNoteStore);
@@ -70,6 +71,15 @@ const Sidebar = () => {
             <div className="flex flex-col gap-2">
                 {rootNodes.map(node => renderItem(node))}
             </div>
+            <Button
+                variant="ghost"
+                size="sm"
+                onClick={logOutAction}
+                className="group w-full justify-start transition-none hover:bg-accent hover:text-accent-foreground"
+            >
+                <LogOutIcon className="transition-transform group-data-[state=open]:rotate-90" />
+                <span>Log Out</span>
+            </Button>
         </div>
     );
 };

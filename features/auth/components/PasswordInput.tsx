@@ -1,10 +1,10 @@
 "use client";
 import { useState } from "react";
-import AuthInput from "../AuthInput";
+import AuthInput from "./AuthInput";
 import {
     getPasswordStrength,
     StrengthLevel,
-} from "../../api/password-strength.service";
+} from "../api/password-strength.service";
 import { Button } from "@/shared/components/ui/button";
 import { Eye, EyeOff } from "lucide-react";
 
