@@ -1,14 +1,13 @@
-import { Sidebar } from "@/features/nodes";
+import AppLayout from "@/shared/components/layout/AppLayout";
 
-export default async function ProtectedLayout({
+export default function ProtectedLayout({
     children,
 }: Readonly<{
     children: React.ReactNode;
 }>) {
     return (
-        <main className="min-h-full flex flex-col">
-            <Sidebar />
+        <AppLayout>
             {children}
-        </main>
+        </AppLayout>
     );
 }

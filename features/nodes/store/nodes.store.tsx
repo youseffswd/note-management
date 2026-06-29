@@ -11,7 +11,7 @@ interface NoteStore {
 }
 
 const useNoteStore = create<NoteStore>()(
-    immer((set, get) => ({
+    immer((set) => ({
         nodes: [],
         nodesHash: {},
         loading: false,
