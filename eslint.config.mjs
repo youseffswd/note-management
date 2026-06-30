@@ -10,7 +10,7 @@ const featureBoundariesPlugin = {
                 type: "problem",
                 messages: {
                     deepImport:
-                        "Deep imports into features are not allowed. Import from '@/features/{{featureName}}' instead.",
+                        "Deep imports into features are not allowed. Import from '@/features/{{featureName}}' or '@/features/{{featureName}}/server' instead.",
                 },
             },
             create(context) {
@@ -34,7 +34,8 @@ const featureBoundariesPlugin = {
                         if (
                             parts.length > 1 &&
                             parts[1] !== "" &&
-                            !parts[1].startsWith("index")
+                            !parts[1].startsWith("index") &&
+                            parts[1] !== "server"
                         ) {
                             isDeepImport = true;
                         }
@@ -56,7 +57,8 @@ const featureBoundariesPlugin = {
                             if (
                                 parts.length > 1 &&
                                 parts[1] !== "" &&
-                                !parts[1].startsWith("index")
+                                !parts[1].startsWith("index") &&
+                                parts[1] !== "server"
                             ) {
                                 isDeepImport = true;
                             }
