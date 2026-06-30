@@ -1,1 +1,2 @@
-export {default as Sidebar } from "./components/sidebar"
+export { default as Explorer } from "./components/Explorer";
+
