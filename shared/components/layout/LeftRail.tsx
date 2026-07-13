@@ -8,13 +8,13 @@ import LogOutButton from "./LogOutButton";
 export default function LeftRail() {
     const pathname = usePathname();
     const railItems = [
-        { href: "/dashboard", icon: FileIcon, label: "Notes" },
+        { href: "/dashboard/notes", icon: FileIcon, label: "Notes" },
         { href: "/dashboard/starred", icon: StarIcon, label: "Starred" },
         { href: "/dashboard/tags", icon: TagIcon, label: "Tags" },
     ];
 
     return (
-        <div className="hidden lg:flex relative z-50 w-14 flex-col items-center py-4 border-r border-border bg-background shrink-0">
+        <div className="hidden lg:flex relative z-50 w-14 flex-col items-center py-4 border-r border-border bg-sidebar shrink-0">
             <nav className="flex-1 flex flex-col gap-1">
                 {railItems.map(item => {
                     const isActive = pathname === item.href;

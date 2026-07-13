@@ -2,7 +2,10 @@
 
 import { ReactNode } from "react";
 
-import { SidebarProvider, SidebarTrigger } from "@/shared/components/ui/sidebar";
+import {
+    SidebarProvider,
+    SidebarTrigger,
+} from "@/shared/components/ui/sidebar";
 import { AppSidebar } from "./AppSidebar";
 import { MobileBottomNav } from "./MobileBottomNav";
 import LeftRail from "./LeftRail";
@@ -11,11 +14,7 @@ interface AppLayoutProps {
     children: ReactNode;
 }
 
-
-
 export default function AppLayout({ children }: AppLayoutProps) {
-
-
     return (
         <SidebarProvider>
             <div className="flex h-screen w-full overflow-hidden">
@@ -23,7 +22,9 @@ export default function AppLayout({ children }: AppLayoutProps) {
                 <LeftRail />
 
                 {/* Shadcn Sidebar — Explorer Panel (toggleable, becomes Sheet on mobile) */}
-                <AppSidebar />
+              
+                    <AppSidebar />
+                
 
                 {/* Main content column */}
                 <div className="flex-1 flex flex-col min-w-0">
