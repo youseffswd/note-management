@@ -1,10 +1,10 @@
+import type { Block } from "@blocknote/core";
 
-
-interface Note {
+export interface Note {
     id: string;
     title: string;
     description: string;//
-    content: string;//
+    content: Block[];
     parentId: string | null;//
     createdAt: Date;//
     updatedAt?: Date;
@@ -12,7 +12,7 @@ interface Note {
     type: "note";
 }
 
-interface Folder {
+export interface Folder {
     id: string;
     name: string;
     parentId: string | null;

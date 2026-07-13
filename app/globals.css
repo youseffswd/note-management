@@ -1,6 +1,7 @@
 @import "tailwindcss";
 @import "tw-animate-css";
 @import "shadcn/tailwind.css";
+@source "../node_modules/@blocknote/shadcn";
 
 @theme inline {
     --color-background: var(--background);
@@ -49,7 +50,7 @@
 
 :root {
     /* Core Backgrounds */
-    --background: #0c0e14;
+    --background: #111420;
     --foreground: #e8eaf0;
 
     /* Cards & App Canvas */
@@ -87,6 +88,7 @@
 
     /* Sidebar */
     --sidebar: #0f1119;
+    /* --sidebar: #0c0e14; */
     --sidebar-foreground: #9aa0b8; /* ↑ was #8890a8 — slightly brighter for legibility */
     --sidebar-primary: #4f8ef7;
     --sidebar-primary-foreground: #ffffff;
@@ -127,4 +129,38 @@
     html {
         @apply font-sans;
     }
+}
+.custom-editor-wrapper .bn-editor {
+    background-color: transparent;
+    padding-top:30px ;
+    padding-bottom:30px ;
+
+}
+
+/* Custom Scrollbar */
+::-webkit-scrollbar {
+    width: 8px;
+    height: 8px;
+}
+
+::-webkit-scrollbar-track {
+    background: transparent;
+}
+
+::-webkit-scrollbar-thumb {
+    border-radius: 4px;
+    background: hsl(217.2 32.6% 17.5%);
+}
+
+::-webkit-scrollbar-thumb:hover {
+    background: var(--color-muted-foreground, hsl(215.4 16.3% 46.9%));
+}
+
+/* Firefox */
+* {
+    scrollbar-width: thin;
+    scrollbar-color: var(--color-border, hsl(214.3 31.8% 91.4%)) transparent;
+}
+* {
+    scrollbar-color: hsl(217.2 32.6% 17.5%) transparent;
 }

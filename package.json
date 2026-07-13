@@ -9,6 +9,9 @@
     "lint": "eslint"
   },
   "dependencies": {
+    "@blocknote/core": "^0.51.4",
+    "@blocknote/react": "^0.51.4",
+    "@blocknote/shadcn": "^0.51.4",
     "@supabase/ssr": "^0.10.2",
     "@supabase/supabase-js": "^2.103.3",
     "class-variance-authority": "^0.7.1",

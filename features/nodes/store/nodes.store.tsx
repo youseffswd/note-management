@@ -1,5 +1,6 @@
 import { create } from "zustand";
 import { immer } from "zustand/middleware/immer";
+import type { Note, Folder } from "@/shared/types";
 
 type Node = Folder | Note;
 
@@ -17,11 +18,16 @@ const useNoteStore = create<NoteStore>()(
         loading: false,
         initilizeNoteStore: async () => {
             set({ loading: true });
-            const response = await fetch(
-                `${process.env.NEXT_PUBLIC_API_URL}/api/nodes`,
-            );
-            const { folders, notes }: { folders: Folder[]; notes: Note[] } =
-                await response.json();
+            const [foldersRes, notesRes] = await Promise.all([
+                fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/folders`),
+                fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/notes`)
+            ])
+            if (!foldersRes.ok || !notesRes.ok) {
+                set({ loading: false });
+                throw new Error("Failed to fetch notes or folders");
+            }
+            const folders = await foldersRes.json() as Folder[];
+            const notes = await notesRes.json() as Note[];
             const allNodes = [...folders, ...notes].sort(
                 (a, b) =>
                     new Date(a.createdAt).getTime() -

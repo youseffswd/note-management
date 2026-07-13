@@ -1,43 +1,55 @@
 import { createServerSupabase, getUser } from "@/shared/lib/supabase/server";
 import { ResponseError } from "@/shared/lib/errors";
+import type { Block } from "@blocknote/core";
+import { Note, Folder } from "@/shared/types";
 
-export async function getNodes(): Promise<{
-    folders: Folder[];
-    notes: Note[];
-}> {
-    const supabase = await createServerSupabase();
+export async function getNotes(): Promise<Note[]>{
+  const supabase = await createServerSupabase();
+  const { data, error } = await supabase.from("notes").select("*");
+  if(error){
+    console.error("Error fetching notes:", error);
+    throw new ResponseError(error.message, 500);
+  }
+  const mappedNotes: Note[] = data.map(note => ({
+    ...note,
+    content: JSON.parse(note.content) as Block[],
+    parentId: note.folderId,
+    folderId: undefined,
+    type: "note",
+  }));
+  return mappedNotes;
+}
+export async function getNote(noteId:string){
+  const supabase = await createServerSupabase();
+  const { data, error } = await supabase.from("notes").select("*").eq("id", noteId);
+  if(error){
+    console.error("Error fetching note:", error);
+    throw new ResponseError(error.message, 500);
+  }
+  const note: Note = {
+    ...data[0],
+    content: JSON.parse(data[0].content) as Block[],
+    parentId: data[0].folderId,
+    folderId: undefined,
+    type: "note",
+  };
+  return note;
+}
 
-    const [
-        { data: notes, error: noteError },
-        { data: folders, error: folderError },
-    ] = await Promise.all([
-        supabase.from("notes").select("*"),
-        supabase.from("folders").select("*"),
-    ]);
-    if (noteError || folderError) {
-        console.error("Error fetching data:", noteError, folderError);
-        throw new ResponseError(
-            noteError?.message ||
-                folderError?.message ||
-                "Failed to fetch notes and folders",
-            500,
-        );
-    }
-    const mappedNotes: Note[] = notes.map(note => ({
-        ...note,
-        parentId: note.folderId,
-        folderId: undefined,
-        type: "note",
-    }));
-    const mappedFolders: Folder[] = folders.map(folder => ({
-        ...folder,
-        children: [],
-        type: "folder",
-    }));
-    return {
-        folders: mappedFolders,
-        notes: mappedNotes,
-    };
+
+export async function getFolders(): Promise<Folder[]>{
+  const supabase = await createServerSupabase();
+  const { data, error } = await supabase.from("folders").select("*");
+  if(error){
+    console.error("Error fetching folders:", error);
+    throw new ResponseError(error.message, 500);
+  }
+  const mappedFolders: Folder[] = data.map(folder => ({
+    ...folder,
+    children: [],
+    type: "folder",
+  }));
+  return mappedFolders;
 }
 
 export async function addNote(note: Omit<Note, "userId">): Promise<void> {
@@ -76,21 +88,22 @@ export async function addFolder(
     }
 }
 
-export async function deleteNode(
-    nodeId: string,
-    nodeType: "note" | "folder",
-): Promise<void> {
-    const supabase = await createServerSupabase();
-    let response;
-    if (nodeType === "note") {
-        response = await supabase.from("notes").delete().eq("id", nodeId);
-    } else {
-        response = await supabase.from("folders").delete().eq("id", nodeId);
-    }
-    if (response.error) {
-        console.error("Error deleting node:", response.error);
-        throw new ResponseError(response.error.message, 500);
-    }
+export async function deleteNote(nodeId: string): Promise<void> {
+  const supabase = await createServerSupabase();
+  const { error } = await supabase.from("notes").delete().eq("id", nodeId);
+  if (error) {
+    console.error("Error deleting note:", error);
+    throw new ResponseError(error.message, 500);
+  }
+}
+
+export async function deleteFolder(nodeId: string): Promise<void> {
+  const supabase = await createServerSupabase();
+  const { error } = await supabase.from("folders").delete().eq("id", nodeId);
+  if (error) {
+    console.error("Error deleting folder:", error);
+    throw new ResponseError(error.message, 500);
+  }
 }
 
 export async function updateNote(note: Note): Promise<void> {
@@ -99,7 +112,7 @@ export async function updateNote(note: Note): Promise<void> {
         .from("notes")
         .update({
             title: note.title,
-            content: note.content,
+            content: JSON.stringify(note.content),
             folderId: note.parentId,
             description: note.description,
         })
