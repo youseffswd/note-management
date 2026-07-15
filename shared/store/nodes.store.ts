@@ -10,10 +10,15 @@ interface NodeStore {
     nodesHash: Record<string, Node>;
 
     initilizeNoteStore: (folders: Folder[], notes: Note[]) => Promise<void>;
-    
+    addNote: (note: Note) => void;
+    addFolder: (folder: Folder) => void;
+    removeNote: (noteId: string) => void;
+    removeFolder: (folderId: string) => void;
+    updateNote: (note: Note) => void;
+    updateFolder: (folder: Folder) => void;
 }
 
-const useNodeStore = create<NodeStore>()(
+export const useNodeStore = create<NodeStore>()(
     devtools(
         immer(set => ({
             nodes: [],
@@ -43,7 +48,7 @@ const useNodeStore = create<NodeStore>()(
                 set({ nodes: nestedNodes, nodesHash });
             },
         })),
+
     )
 );
 
-export default useNodeStore;
