@@ -6,9 +6,10 @@ import "@blocknote/shadcn/style.css";
 import { useCreateBlockNote } from "@blocknote/react";
 import { BlockNoteView } from "@blocknote/shadcn";
 import type { Block } from "@blocknote/core";
-import { useEffect, useRef, useState, useCallback } from "react";
+import { useEffect, useState } from "react";
 import { Loader2, Check, CloudOff } from "lucide-react";
 import { Note } from "@/shared/types";
+import { useDebounceCallback } from "usehooks-ts";
 // const initialContent = [
 //             {
 //                 type: "heading",
@@ -64,10 +65,8 @@ export default function Editor({ className, note }: EditorProps) {
     >("idle");
     const [errorMessage, setErrorMessage] = useState<string | null>(null);
 
-    const isFirstRender = useRef(true);
-    const timer = useRef<ReturnType<typeof setTimeout> | null>(null);
 
-    const saveContent = useCallback(
+    const saveContent = useDebounceCallback(
         async (newContent: Block[]) => {
             try {
                 setSaveStatus("saving");
@@ -129,24 +128,14 @@ export default function Editor({ className, note }: EditorProps) {
                 }
             }
         },
-        [note],
+        800
     );
 
     useEffect(() => {
-        // Debounce save by 800ms
-        timer.current = setTimeout(() => {
-            if (JSON.stringify(note.content) !== JSON.stringify(document)) {
-                saveContent(document);
-            }
-        }, 800);
-
-        return () => {
-            if (timer.current) {
-                clearTimeout(timer.current);
-                timer.current = null;
-            }
-        };
-    }, [document, saveContent]);
+        if (JSON.stringify(note.content) !== JSON.stringify(document)) {
+            saveContent(document);
+        }
+    }, [document, saveContent, note.content]);
 
     return (
         <div className="custom-editor-wrapper w-full relative">
