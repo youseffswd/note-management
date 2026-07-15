@@ -1,13 +1,11 @@
+import { getFolders, getNotes } from "@/features/nodes/server";
 import AppLayout from "@/shared/components/layout/AppLayout";
 
-export default function ProtectedLayout({
+export default async function ProtectedLayout({
     children,
 }: Readonly<{
     children: React.ReactNode;
 }>) {
-    return (
-        <AppLayout>
-            {children}
-        </AppLayout>
-    );
+    const [folders,notes] = await Promise.all([getFolders(),getNotes()])
+    return <AppLayout folders={folders} notes={notes}>{children}</AppLayout>;
 }

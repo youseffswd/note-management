@@ -1,4 +1,4 @@
-
+import { useId } from "react";
 import {
     Field,
     FieldLabel,
@@ -24,16 +24,21 @@ export default function AuthInput({
     id,
     ...props
 }: InputProps) {
+    const fallbackId = useId();
+    const inputId = id || fallbackId;
+    const errorId = errorMessage ? `${inputId}-error` : undefined;
+
     return (
         <Field data-invalid={!!errorMessage}>
-            <FieldLabel htmlFor={id} className="text-xs text-muted-foreground">
+            <FieldLabel htmlFor={inputId} className="text-xs text-muted-foreground">
                 {label}
             </FieldLabel>
             <div className="relative flex items-center">
                 <Input
-                    id={id}
+                    id={inputId}
                     {...props}
                     aria-invalid={!!errorMessage}
+                    aria-describedby={errorId}
                     className={`border border-border h-10 bg-input focus-visible:ring-0 placeholder:text-sm placeholder:text-white/50 ${rightElement ? "pr-10" : ""} ${className}`}
                 />
                 {rightElement && (
@@ -43,7 +48,7 @@ export default function AuthInput({
                 )}
             </div>
             {children}
-            {errorMessage && <FieldError className="text-xs">{errorMessage}</FieldError>}
+            {errorMessage && <FieldError id={errorId} className="text-xs">{errorMessage}</FieldError>}
         </Field>
     );
 }

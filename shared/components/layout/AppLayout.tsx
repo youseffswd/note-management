@@ -9,21 +9,23 @@ import {
 import { AppSidebar } from "./AppSidebar";
 import { MobileBottomNav } from "./MobileBottomNav";
 import LeftRail from "./LeftRail";
-
+import {Folder,Note} from "@/shared/types"
 interface AppLayoutProps {
     children: ReactNode;
+    folders: Folder[];
+    notes: Note[];
 }
 
-export default function AppLayout({ children }: AppLayoutProps) {
+export default function AppLayout({ children, folders, notes }: AppLayoutProps) {
     return (
         <SidebarProvider>
             <div className="flex h-screen w-full overflow-hidden">
                 {/* Desktop Left Rail — hidden on mobile */}
-                <LeftRail />
+                <LeftRail  />
 
                 {/* Shadcn Sidebar — Explorer Panel (toggleable, becomes Sheet on mobile) */}
               
-                    <AppSidebar />
+                    <AppSidebar folders={folders} notes={notes} />
                 
 
                 {/* Main content column */}

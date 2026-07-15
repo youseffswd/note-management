@@ -20,6 +20,8 @@ export default function Agreement({state}: AgreementProps) {
                     className="border-2 border-border"
                     id="agreeTerms"
                     name="agreeTerms"
+                    aria-invalid={!!state?.errors?.agreeTerms?.[0]}
+                    aria-describedby={state?.errors?.agreeTerms?.[0] ? "agreeTerms-error" : undefined}
                 />
                 <FieldLabel
                     htmlFor="agreeTerms"
@@ -42,7 +44,7 @@ export default function Agreement({state}: AgreementProps) {
                 </FieldLabel>
             </Field>
             {state?.errors?.agreeTerms?.[0] && (
-                <FieldError className="text-xs">
+                <FieldError id="agreeTerms-error" className="text-xs">
                     {state.errors.agreeTerms[0]}
                 </FieldError>
             )}

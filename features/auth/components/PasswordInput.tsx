@@ -81,6 +81,8 @@ export default function PasswordInput({
                     onClick={() => setShowPassword(prev => !prev)}
                     size="icon"
                     variant="ghost"
+                    aria-label={showPassword ? "Hide password" : "Show password"}
+                    aria-pressed={showPassword}
                     className="p-0 w-8 h-8 hover:bg-transparent text-muted-foreground hover:text-foreground"
                 >
                     {showPassword ? (
@@ -92,7 +94,14 @@ export default function PasswordInput({
             }
         >
             {strengthMeter && (
-                <div className="flex gap-1 mt-1">
+                <div 
+                    className="flex gap-1 mt-1" 
+                    role="progressbar" 
+                    aria-label="Password strength" 
+                    aria-valuenow={score[strength]} 
+                    aria-valuemin={0} 
+                    aria-valuemax={4}
+                >
                     <span
                         className={`w-full h-1 rounded ${score[strength] > 0 ? bgColor : "bg-accent"}`}
                     ></span>
