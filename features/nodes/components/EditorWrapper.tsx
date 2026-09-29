@@ -1,7 +1,7 @@
 "use client";
 
 import dynamic from "next/dynamic";
-import { Note } from "@/shared/types";
+import type { Note } from "../types";
 import { Loader } from "@/shared/components/ui/loader";
 
 // The dynamic import with ssr: false happens here inside the Client Component
@@ -14,6 +14,6 @@ const Editor = dynamic(() => import("./Editor"), {
     )
 });
 
-export default function EditorWrapper({ className, note }: { className?: string; note: Note }) {
-    return <Editor className={className || ""} note={note} />;
+export default function EditorWrapper({ className, note, userId }: { className?: string; note: Note; userId: string }) {
+    return <Editor className={className || ""} note={note} userId={userId} />;
 }
