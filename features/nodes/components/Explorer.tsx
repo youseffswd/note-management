@@ -9,6 +9,7 @@ import { useNodeStore } from "../store/nodes.store";
 import type { Folder, Note } from "../types";
 import { buildTree } from "../utils/tree-build";
 import { createEmptyNote } from "../utils/create-empty-note";
+import { createEmptyFolder } from "../utils/create-empty-folder";
 import ExplorerActions from "./ExplorerActions";
 import ExplorerSearch from "./ExplorerSearch";
 import FolderItem from "./FolderItem";
@@ -25,6 +26,7 @@ const Explorer = ({ notes, folders }: ExplorerProps) => {
     const initilizeNoteStore = useNodeStore(state => state.initilizeNoteStore);
     const nodesHash = useNodeStore(state => state.nodesHash);
     const addNote = useNodeStore(state => state.addNote);
+    const addFolder = useNodeStore(state => state.addFolder);
 
     const [searchQuery, setSearchQuery] = useState("");
     const debouncedSetSearchQuery = useDebounceCallback(setSearchQuery, 300);
@@ -54,6 +56,10 @@ const Explorer = ({ notes, folders }: ExplorerProps) => {
         router.push(`/dashboard/notes/${newNote.id}`);
     };
 
+    const handleCreateFolder = async () => {
+        await addFolder(createEmptyFolder());
+    };
+
     return (
         <>
             <SidebarHeader className="p-4 border-b border-sidebar-border flex flex-col gap-3">
@@ -63,7 +69,7 @@ const Explorer = ({ notes, folders }: ExplorerProps) => {
                     </h2>
                     <ExplorerActions
                         addNote={handleCreateNote}
-                        addFolder={() => {}}
+                        addFolder={handleCreateFolder}
                     />
                 </div>
                 <ExplorerSearch setSearchQuery={debouncedSetSearchQuery} />

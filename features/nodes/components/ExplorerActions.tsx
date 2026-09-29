@@ -34,6 +34,7 @@ const ExplorerActions = ({ addNote, addFolder }: ExplorerActions) => {
                 <Tooltip>
                     <TooltipTrigger asChild>
                         <Button
+                            onClick={addFolder}
                             variant="ghost"
                             size="icon"
                             className="h-8 w-8 text-sidebar-foreground/70 hover:text-sidebar-foreground hover:bg-sidebar-accent shrink-0"

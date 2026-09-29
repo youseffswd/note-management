@@ -9,7 +9,7 @@ interface NodeStore {
     initilizeNoteStore: (folders: Folder[], notes: Note[]) => Promise<void>;
     ensureNode: (node: Node) => void;
     addNote: (note: Note) => Promise<void>;
-    addFolder: (folder: Folder) => void;
+    addFolder: (folder: Folder) => Promise<void>;
     removeNote: (noteId: string) => void;
     removeFolder: (folderId: string) => void;
     updateNote: (noteId: string, updates: Partial<Note>) => Promise<Note>;
@@ -67,6 +67,31 @@ export const useNodeStore = create<NodeStore>()(
                     }
                 } catch (error) {
                     console.error("Error adding note:", error);
+                    set(state => {
+                        state.nodesHash = previousNodesHash;
+                    });
+                }
+            },
+            addFolder: async (folder: Folder) => {
+                const previousNodesHash = get().nodesHash;
+
+                set(state => {
+                    state.nodesHash[folder.id] = folder;
+                });
+
+                try {
+                    const response = await fetch("/api/folders", {
+                        method: "POST",
+                        headers: {
+                            "Content-Type": "application/json",
+                        },
+                        body: JSON.stringify(folder),
+                    });
+                    if (!response.ok) {
+                        throw new Error("Failed to add folder");
+                    }
+                } catch (error) {
+                    console.error("Error adding folder:", error);
                     set(state => {
                         state.nodesHash = previousNodesHash;
                     });
