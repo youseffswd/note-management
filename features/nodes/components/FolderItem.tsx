@@ -8,7 +8,7 @@ import {
 } from "@/shared/components/ui/collapsible";
 import { ChevronRightIcon, FolderIcon } from "lucide-react";
 import NoteItem from "./NoteItem";
-import { Folder } from "@/shared/types";
+import type { Folder } from "../types";
 
 const folderColors: Record<string, string> = {
     "chart-1": "text-chart-1",

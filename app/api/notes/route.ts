@@ -10,12 +10,12 @@ export async function GET() {
         if (error instanceof ResponseError) {
             return NextResponse.json(
                 { error: error.message },
-                { status: error.status }
+                { status: error.status },
             );
         }
         return NextResponse.json(
             { error: "Failed to fetch notes" },
-            { status: 500 }
+            { status: 500 },
         );
     }
 }
@@ -29,12 +29,12 @@ export async function POST(request: Request) {
         if (error instanceof ResponseError) {
             return NextResponse.json(
                 { error: error.message },
-                { status: error.status }
+                { status: error.status },
             );
         }
         return NextResponse.json(
             { error: "Failed to create note" },
-            { status: 500 }
+            { status: 500 },
         );
     }
 }

@@ -1,13 +1,16 @@
 "use client";
 
-import { useNodeStore } from "@/shared/store/nodes.store";
-import { useEffect, useState, useMemo } from "react";
+import { useEffect, useMemo, useState } from "react";
+import { useDebounceCallback } from "usehooks-ts";
+
+import { SidebarHeader } from "@/shared/components/ui/sidebar";
+import { useNodeStore } from "../store/nodes.store";
+import type { Folder, Note } from "../types";
+import { buildTree } from "../utils/tree-build";
+import ExplorerSearch from "./ExplorerSearch";
 import FolderItem from "./FolderItem";
 import NoteItem from "./NoteItem";
-import { SidebarHeader } from "@/shared/components/ui/sidebar";
-import { Folder, Note } from "@/shared/types";
-import ExplorerSearch from "./ExplorerSearch";
-import {useDebounceCallback} from "usehooks-ts"
+
 interface ExplorerProps {
     notes: Note[];
     folders: Folder[];
@@ -15,50 +18,48 @@ interface ExplorerProps {
 
 const Explorer = ({ notes, folders }: ExplorerProps) => {
     const initilizeNoteStore = useNodeStore(state => state.initilizeNoteStore);
-    const rootNodes = useNodeStore(state => state.nodes);
     const nodesHash = useNodeStore(state => state.nodesHash);
+
     const [searchQuery, setSearchQuery] = useState("");
-    const debounced = useDebounceCallback(setSearchQuery,300);
+    const debouncedSetSearchQuery = useDebounceCallback(setSearchQuery, 300);
 
     useEffect(() => {
-        initilizeNoteStore(folders, notes); // this is for initilization
+        initilizeNoteStore(folders, notes);
     }, [initilizeNoteStore, folders, notes]);
+
+    const rootNodes = useMemo(() => buildTree(nodesHash), [nodesHash]);
 
     const searchResults = useMemo(() => {
         if (!searchQuery.trim()) return null;
 
         const query = searchQuery.toLowerCase();
         return Object.values(nodesHash).filter(
-            node =>
+            (node): node is Note =>
                 node.type === "note" &&
                 node.title.toLowerCase().includes(query),
-        ) as Note[];
+        );
     }, [searchQuery, nodesHash]);
+    const visibleNodes = searchResults ?? rootNodes;
+    const hasNoSearchResults = searchResults !== null && searchResults.length === 0;
 
 
     return (
         <>
-            <SidebarHeader className="p-4 border-b border-sidebar-border">
-                <h2 className="text-xs font-bold text-sidebar-foreground/70 tracking-wider uppercase mb-2">
-                    Explorer
-                </h2>
-                <ExplorerSearch
-                    setSearchQuery={debounced}
-                />
+            <SidebarHeader className="p-4 border-b border-sidebar-border flex flex-col gap-3">
+                <div className="flex items-center justify-between">
+                    <h2 className="text-xs font-bold text-sidebar-foreground/70 tracking-wider uppercase">
+                        Explorer
+                    </h2>
+                </div>
+                <ExplorerSearch setSearchQuery={debouncedSetSearchQuery} />
             </SidebarHeader>
             <div className="flex flex-col gap-1 p-2">
-                {searchResults ? (
-                    searchResults.length > 0 ? (
-                        searchResults.map(note => (
-                            <NoteItem key={note.id} note={note} />
-                        ))
-                    ) : (
-                        <div className="px-4 text-sm text-muted-foreground text-center py-4">
-                            No notes found
-                        </div>
-                    )
+                {hasNoSearchResults ? (
+                    <div className="px-4 text-sm text-muted-foreground text-center py-4">
+                        No notes found
+                    </div>
                 ) : (
-                    rootNodes.map(node =>
+                    visibleNodes.map(node =>
                         node.type === "folder" ? (
                             <FolderItem key={node.id} folder={node} />
                         ) : (

@@ -1,7 +1,7 @@
 "use client";
 
 import { Button } from "@/shared/components/ui/button";
-import { Note } from "@/shared/types";
+import { Note } from "../types";
 import { FileIcon } from "lucide-react";
 import { useRouter } from "next/navigation";
 

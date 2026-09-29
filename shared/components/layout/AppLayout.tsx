@@ -9,7 +9,7 @@ import {
 import { AppSidebar } from "./AppSidebar";
 import { MobileBottomNav } from "./MobileBottomNav";
 import LeftRail from "./LeftRail";
-import {Folder,Note} from "@/shared/types"
+import type { Folder, Note } from "@/features/nodes";
 interface AppLayoutProps {
     children: ReactNode;
     folders: Folder[];

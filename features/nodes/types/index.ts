@@ -1,25 +1,26 @@
-import type { Block } from "@blocknote/core";
+import type { PartialBlock } from "@blocknote/core";
+
+type ParentId = string | null;
 
 export interface Note {
     id: string;
     title: string;
-    description: string;//
-    content: Block[];
-    parentId: string | null;//
-    createdAt: Date;//
+    content: PartialBlock[];
+    parentId: ParentId;
+    createdAt: Date;
     updatedAt?: Date;
-    userId: string;
     type: "note";
 }
 
 export interface Folder {
     id: string;
     name: string;
-    parentId: string | null;
+    parentId: ParentId;
     children: (Folder | Note)[];
     createdAt: Date;
     updatedAt?: Date;
-    userId: string;
     type: "folder";
     colorClass: string;
 }
+
+export type Node = Note | Folder;

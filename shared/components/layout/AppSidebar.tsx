@@ -13,8 +13,8 @@ import {
     SidebarGroupContent,
 } from "@/shared/components/ui/sidebar";
 import { Button } from "@/shared/components/ui/button";
-import { useAuthStore } from "@/shared/store/auth.store";
-import {Folder,Note} from "@/shared/types"
+import { useAuthStore } from "@/features/auth";
+import type { Folder, Note } from "@/features/nodes";
 interface AppSidebarProps {
     folders: Folder[];
     notes: Note[];
