@@ -192,3 +192,17 @@ function jsonEquals(a: unknown, b: unknown): boolean {
         return false;
     }
 }
+
+/**
+ * Reads and resolves the draft the editor should open with, dropping one that
+ * is no longer needed. Reads localStorage, so call it once on mount only.
+ */
+export function loadDraftResolution(
+    userId: string,
+    note: Note,
+): DraftResolution {
+    const draft = readDraft(userId, note.id);
+    const resolved = resolveDraft(note, draft);
+    if (draft && resolved.kind === "none") clearDraft(userId, note.id);
+    return resolved;
+}
