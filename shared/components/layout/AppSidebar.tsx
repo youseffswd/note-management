@@ -15,6 +15,7 @@ import {
 import { Button } from "@/shared/components/ui/button";
 import { useAuthStore } from "@/features/auth";
 import type { Folder, Note } from "@/features/nodes";
+import SidebarResizeHandle from "./SidebarResizeHandle";
 interface AppSidebarProps {
     folders: Folder[];
     notes: Note[];
@@ -24,6 +25,7 @@ export function AppSidebar({folders,notes}: AppSidebarProps) {
     const { user } = useAuthStore();
     return (
         <Sidebar className="lg:ms-14">
+                <SidebarResizeHandle />
 
                 <SidebarContent>
                     <SidebarGroup className="flex-1">
