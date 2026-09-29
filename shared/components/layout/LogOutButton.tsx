@@ -5,13 +5,12 @@ import { cn } from "@/shared/lib/utils";
 import { logOutAction } from "@/features/auth"
 import { clearAllDrafts } from "@/features/nodes"
 
-interface LogOutButtonProps {
-    className?: string;
-    children?: React.ReactNode;
-}
+type LogOutButtonProps = React.ComponentProps<"button">;
 
-export default function LogOutButton({ className, children }: LogOutButtonProps) {
-    const handleLogOut = async () => {
+// Spreads the rest of the props so it can be used as a Radix `asChild` target (e.g. TooltipTrigger).
+export default function LogOutButton({ className, children, onClick, ...props }: LogOutButtonProps) {
+    const handleLogOut = async (event: React.MouseEvent<HTMLButtonElement>) => {
+        onClick?.(event);
         // Drafts live in localStorage, which is shared by everyone who uses
         // this browser. Never leave them behind for the next person.
         clearAllDrafts();
@@ -19,7 +18,7 @@ export default function LogOutButton({ className, children }: LogOutButtonProps)
     };
 
     return (
-        <button onClick={handleLogOut} className={cn("cursor-pointer", className)} title="Log Out">
+        <button type="button" {...props} onClick={handleLogOut} className={cn("cursor-pointer", className)}>
             {children}
         </button>
     );

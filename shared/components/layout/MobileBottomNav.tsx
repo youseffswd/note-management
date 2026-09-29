@@ -2,15 +2,10 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { FileIcon, StarIcon, TagIcon, LogOutIcon } from "lucide-react";
+import { LogOutIcon } from "lucide-react";
 
 import LogOutButton from "./LogOutButton";
-
-const navItems = [
-    { href: "/dashboard/notes", icon: FileIcon, label: "Notes" },
-    { href: "/dashboard/starred", icon: StarIcon, label: "Starred" },
-    { href: "/dashboard/tags", icon: TagIcon, label: "Tags" },
-];
+import { navItems } from "./nav-items";
 
 export function MobileBottomNav() {
     const pathname = usePathname();
