@@ -1,12 +1,15 @@
 "use client";
 
 import { useEffect, useMemo, useState } from "react";
+import { useRouter } from "next/navigation";
 import { useDebounceCallback } from "usehooks-ts";
 
 import { SidebarHeader } from "@/shared/components/ui/sidebar";
 import { useNodeStore } from "../store/nodes.store";
 import type { Folder, Note } from "../types";
 import { buildTree } from "../utils/tree-build";
+import { createEmptyNote } from "../utils/create-empty-note";
+import ExplorerActions from "./ExplorerActions";
 import ExplorerSearch from "./ExplorerSearch";
 import FolderItem from "./FolderItem";
 import NoteItem from "./NoteItem";
@@ -17,8 +20,11 @@ interface ExplorerProps {
 }
 
 const Explorer = ({ notes, folders }: ExplorerProps) => {
+    const router = useRouter();
+
     const initilizeNoteStore = useNodeStore(state => state.initilizeNoteStore);
     const nodesHash = useNodeStore(state => state.nodesHash);
+    const addNote = useNodeStore(state => state.addNote);
 
     const [searchQuery, setSearchQuery] = useState("");
     const debouncedSetSearchQuery = useDebounceCallback(setSearchQuery, 300);
@@ -42,6 +48,11 @@ const Explorer = ({ notes, folders }: ExplorerProps) => {
     const visibleNodes = searchResults ?? rootNodes;
     const hasNoSearchResults = searchResults !== null && searchResults.length === 0;
 
+    const handleCreateNote = async () => {
+        const newNote = createEmptyNote();
+        await addNote(newNote);
+        router.push(`/dashboard/notes/${newNote.id}`);
+    };
 
     return (
         <>
@@ -50,6 +61,10 @@ const Explorer = ({ notes, folders }: ExplorerProps) => {
                     <h2 className="text-xs font-bold text-sidebar-foreground/70 tracking-wider uppercase">
                         Explorer
                     </h2>
+                    <ExplorerActions
+                        addNote={handleCreateNote}
+                        addFolder={() => {}}
+                    />
                 </div>
                 <ExplorerSearch setSearchQuery={debouncedSetSearchQuery} />
             </SidebarHeader>
