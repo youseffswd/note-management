@@ -8,7 +8,9 @@ import {
 } from "@/shared/components/ui/collapsible";
 import { ChevronRightIcon, FolderIcon } from "lucide-react";
 import NoteItem from "./NoteItem";
+import ExplorerContextMenu from "./ExplorerContextMenu";
 import type { Folder } from "../types";
+import { useNodeStore } from "../store/nodes.store";
 
 const folderColors: Record<string, string> = {
     "chart-1": "text-chart-1",
@@ -23,22 +25,51 @@ interface FolderItemProps {
 }
 
 export default function FolderItem({ folder }: FolderItemProps) {
+    const removeFolder = useNodeStore(state => state.removeFolder);
+
+    const handleCreateNote = () => {};
+
+    const handleCreateFolder = () => {};
+
+    const handleRename = () => {};
+
+    const handleDelete = async () => {
+        try {
+            await removeFolder(folder.id);
+        } catch (error) {
+            console.error("Error deleting folder:", error);
+        }
+    };
+
     return (
         <Collapsible>
-            <CollapsibleTrigger asChild>
-                <Button
-                    variant="ghost"
-                    size="sm"
-                    className="group w-full justify-start transition hover:bg-accent! hover:text-accent-foreground"
-                >
-                    <ChevronRightIcon className="transition-transform group-data-[state=open]:rotate-90" />
-                    <FolderIcon
-                        className={`${folderColors[folder.colorClass] || "text-foreground"} fill-current`}
-                    />
-                    {folder.name}
-                    <span className="ml-auto text-xs">{folder.children.length}</span>
-                </Button>
-            </CollapsibleTrigger>
+            <ExplorerContextMenu
+                target="folder"
+                onCreateNote={handleCreateNote}
+                onCreateFolder={handleCreateFolder}
+                onRename={handleRename}
+                onDelete={handleDelete}
+            >
+                {/* Wrapper keeps the menu's data-state off the collapsible trigger */}
+                <div className="rounded-md data-[state=open]:bg-accent">
+                    <CollapsibleTrigger asChild>
+                        <Button
+                            variant="ghost"
+                            size="sm"
+                            className="group w-full justify-start transition hover:bg-accent! hover:text-accent-foreground"
+                        >
+                            <ChevronRightIcon className="transition-transform group-data-[state=open]:rotate-90" />
+                            <FolderIcon
+                                className={`${folderColors[folder.colorClass] || "text-foreground"} fill-current`}
+                            />
+                            {folder.name}
+                            <span className="ml-auto text-xs">
+                                {folder.children.length}
+                            </span>
+                        </Button>
+                    </CollapsibleTrigger>
+                </div>
+            </ExplorerContextMenu>
             <CollapsibleContent className="mt-1 ml-5 style-lyra:ml-4">
                 <div className="flex flex-col gap-1">
                     {folder.children.map(child =>

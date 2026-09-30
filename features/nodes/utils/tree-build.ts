@@ -1,13 +1,13 @@
 import type { Node } from "../types";
 
-export function buildTree(nodesHash: Record<string, Node>): Node[] {
+export function buildTree(nodesHash: Record<string, Node>): {
+    roots: Node[];
+    newHash: Record<string, Node>;
+} {
     const hash: Record<string, Node> = {};
-
     for (const node of Object.values(nodesHash)) {
         hash[node.id] =
-            node.type === "folder"
-                ? { ...node, children: [] }
-                : { ...node };
+            node.type === "folder" ? { ...node, children: [] } : { ...node };
     }
 
     const roots: Node[] = [];
@@ -22,5 +22,5 @@ export function buildTree(nodesHash: Record<string, Node>): Node[] {
         }
     }
 
-    return roots;
+    return { roots, newHash: hash };
 }

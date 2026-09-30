@@ -1,7 +1,7 @@
 import { createServerSupabase, getUser } from "@/shared/lib/supabase/server";
 import { ResponseError } from "@/shared/lib/errors";
 import type { PartialBlock } from "@blocknote/core";
-import type {Note,Folder} from "../types"
+import type { Note, Folder } from "../types";
 
 export async function getNotes(): Promise<Note[]> {
     const supabase = await createServerSupabase();
@@ -58,7 +58,10 @@ export async function getFolders(): Promise<Folder[]> {
     const supabase = await createServerSupabase();
     const userId = (await getUser())?.id;
     if (!userId) throw new ResponseError("Unauthorized", 401);
-    const { data, error } = await supabase.from("folders").select("*").eq("userId",userId)
+    const { data, error } = await supabase
+        .from("folders")
+        .select("*")
+        .eq("userId", userId);
     if (error) {
         console.error("Error fetching folders:", error);
         throw new ResponseError(error.message, 500);
@@ -150,7 +153,7 @@ export async function updateNote(note: Note): Promise<void> {
             title: note.title,
             content: JSON.stringify(note.content),
             folderId: note.parentId,
-            updatedAt: note.updatedAt
+            updatedAt: note.updatedAt,
         })
         .eq("id", note.id)
         .eq("userId", userId);

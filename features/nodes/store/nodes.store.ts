@@ -2,6 +2,7 @@ import { create } from "zustand";
 import { immer } from "zustand/middleware/immer";
 import type { Note, Folder, Node } from "../types";
 import { devtools } from "zustand/middleware";
+import { removeFolderFromHash } from "../utils/delete-folder-store";
 
 interface NodeStore {
     nodesHash: Record<string, Node>;
@@ -10,8 +11,8 @@ interface NodeStore {
     ensureNode: (node: Node) => void;
     addNote: (note: Note) => Promise<void>;
     addFolder: (folder: Folder) => Promise<void>;
-    removeNote: (noteId: string) => void;
-    removeFolder: (folderId: string) => void;
+    removeNote: (noteId: string) => Promise<void>;
+    removeFolder: (folderId: string) => Promise<void>;
     updateNote: (noteId: string, updates: Partial<Note>) => Promise<Note>;
     updateFolder: (folder: Folder) => void;
 }
@@ -95,6 +96,62 @@ export const useNodeStore = create<NodeStore>()(
                     set(state => {
                         state.nodesHash = previousNodesHash;
                     });
+                }
+            },
+            removeFolder: async (folderId: string) => {
+                const nodesHash = get().nodesHash;
+                set(state => {
+                    state.nodesHash = removeFolderFromHash(
+                        state.nodesHash,
+                        folderId,
+                    );
+                });
+                try {
+                    const response = await fetch(`/api/folders/${folderId}`, {
+                        method: "DELETE",
+                        headers: {
+                            "Content-Type": "application/json",
+                        },
+                    });
+                    if (!response.ok) {
+                        throw new Error(
+                            response.status === 401
+                                ? "Session expired. Please sign in again."
+                                : "Failed to delete folder",
+                        );
+                    }
+                } catch (error) {
+                    set(state => {
+                        state.nodesHash = nodesHash;
+                    });
+                    throw error;
+                }
+            },
+            removeNote: async (noteId: string) => {
+                const nodesHash = get().nodesHash;
+                set(state => {
+                    if (state.nodesHash[noteId]?.type !== "note") return;
+                    delete state.nodesHash[noteId];
+                });
+                try {
+                    const response = await fetch(`/api/notes/${noteId}`, {
+                        method: "DELETE",
+                        headers: {
+                            "Content-Type": "application/json",
+                        },
+                    });
+                    if (!response.ok) {
+                        throw new Error(
+                            response.status === 401
+                                ? "Session expired. Please sign in again."
+                                : "Failed to delete note",
+                        );
+                    }
+                } catch (error) {
+                    set(state => {
+                        state.nodesHash = nodesHash;
+                    });
+                    throw error;
                 }
             },
             updateNote: async (noteId: string, updates: Partial<Note>) => {
