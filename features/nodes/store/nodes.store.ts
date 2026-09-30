@@ -6,6 +6,10 @@ import { removeFolderFromHash } from "../utils/delete-folder-store";
 
 interface NodeStore {
     nodesHash: Record<string, Node>;
+    // Ids deleted this session. The editor flushes its pending save on
+    // unmount, and that save would otherwise put a deleted note back
+    // through ensureNode.
+    deletedIds: Record<string, true>;
 
     initilizeNoteStore: (folders: Folder[], notes: Note[]) => Promise<void>;
     ensureNode: (node: Node) => void;
@@ -21,6 +25,7 @@ export const useNodeStore = create<NodeStore>()(
     devtools(
         immer((set, get) => ({
             nodesHash: {},
+            deletedIds: {},
 
             initilizeNoteStore: async (folders: Folder[], notes: Note[]) => {
                 const allNodes = [...folders, ...notes].sort(
@@ -41,9 +46,11 @@ export const useNodeStore = create<NodeStore>()(
             // Seeds a node the hash does not have yet. The editor calls this
             // with its server-fetched note so a save on a directly-loaded page
             // cannot fail with "Note not found" before Explorer has populated
-            // the hash. Idempotent: never overwrites what is already there.
+            // the hash. Idempotent: never overwrites what is already there,
+            // and never brings back a node deleted this session.
             ensureNode: (node: Node) => {
-                if (get().nodesHash[node.id]) return;
+                const { nodesHash, deletedIds } = get();
+                if (nodesHash[node.id] || deletedIds[node.id]) return;
                 set(state => {
                     state.nodesHash[node.id] = node;
                 });
@@ -100,11 +107,15 @@ export const useNodeStore = create<NodeStore>()(
             },
             removeFolder: async (folderId: string) => {
                 const nodesHash = get().nodesHash;
+                const nextNodesHash = removeFolderFromHash(nodesHash, folderId);
+                if (nextNodesHash === nodesHash) return;
+
+                const removedIds = Object.keys(nodesHash).filter(
+                    id => !(id in nextNodesHash),
+                );
                 set(state => {
-                    state.nodesHash = removeFolderFromHash(
-                        state.nodesHash,
-                        folderId,
-                    );
+                    state.nodesHash = nextNodesHash;
+                    for (const id of removedIds) state.deletedIds[id] = true;
                 });
                 try {
                     const response = await fetch(`/api/folders/${folderId}`, {
@@ -123,15 +134,18 @@ export const useNodeStore = create<NodeStore>()(
                 } catch (error) {
                     set(state => {
                         state.nodesHash = nodesHash;
+                        for (const id of removedIds) delete state.deletedIds[id];
                     });
                     throw error;
                 }
             },
             removeNote: async (noteId: string) => {
                 const nodesHash = get().nodesHash;
+                if (nodesHash[noteId]?.type !== "note") return;
+
                 set(state => {
-                    if (state.nodesHash[noteId]?.type !== "note") return;
                     delete state.nodesHash[noteId];
+                    state.deletedIds[noteId] = true;
                 });
                 try {
                     const response = await fetch(`/api/notes/${noteId}`, {
@@ -150,6 +164,7 @@ export const useNodeStore = create<NodeStore>()(
                 } catch (error) {
                     set(state => {
                         state.nodesHash = nodesHash;
+                        delete state.deletedIds[noteId];
                     });
                     throw error;
                 }
@@ -189,6 +204,9 @@ export const useNodeStore = create<NodeStore>()(
                     }
                 } catch (error) {
                     set(state => {
+                        // The note may have been deleted while this save was
+                        // in flight; restoring it would bring it back.
+                        if (state.deletedIds[noteId]) return;
                         state.nodesHash[noteId] = previousNote;
                     });
                     throw error;

@@ -3,7 +3,7 @@
 import { Button } from "@/shared/components/ui/button";
 import { Note } from "../types";
 import { FileIcon } from "lucide-react";
-import { useRouter } from "next/navigation";
+import { usePathname, useRouter } from "next/navigation";
 import ExplorerContextMenu from "./ExplorerContextMenu";
 import { useNodeStore } from "../store/nodes.store";
 
@@ -12,16 +12,19 @@ interface NoteItemProps {
 }
 
 export default function NoteItem({ note }: NoteItemProps) {
-  const removeNote = useNodeStore(state => state.removeNote)
+    const removeNote = useNodeStore(state => state.removeNote);
+    const pathname = usePathname();
     const router = useRouter();
-
     const handleRename = () => {};
 
     const handleDuplicate = () => {};
 
     const handleDelete = async () => {
+        const noteId = pathname.split("/").pop();
         try {
             await removeNote(note.id);
+            if(noteId === note.id) router.push("/dashboard/notes")
+
         } catch (error) {
             console.error("Error deleting folder:", error);
         }
