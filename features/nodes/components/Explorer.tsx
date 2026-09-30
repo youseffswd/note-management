@@ -11,6 +11,7 @@ import { buildTree } from "../utils/tree-build";
 import { createEmptyNote } from "../utils/create-empty-note";
 import { createEmptyFolder } from "../utils/create-empty-folder";
 import ExplorerActions from "./ExplorerActions";
+import ExplorerContextMenu from "./ExplorerContextMenu";
 import ExplorerSearch from "./ExplorerSearch";
 import FolderItem from "./FolderItem";
 import NoteItem from "./NoteItem";
@@ -35,7 +36,7 @@ const Explorer = ({ notes, folders }: ExplorerProps) => {
         initilizeNoteStore(folders, notes);
     }, [initilizeNoteStore, folders, notes]);
 
-    const rootNodes = useMemo(() => buildTree(nodesHash), [nodesHash]);
+    const {roots: rootNodes} = useMemo(() => buildTree(nodesHash), [nodesHash]);
 
     const searchResults = useMemo(() => {
         if (!searchQuery.trim()) return null;
@@ -74,21 +75,27 @@ const Explorer = ({ notes, folders }: ExplorerProps) => {
                 </div>
                 <ExplorerSearch setSearchQuery={debouncedSetSearchQuery} />
             </SidebarHeader>
-            <div className="flex flex-col gap-1 p-2">
-                {hasNoSearchResults ? (
-                    <div className="px-4 text-sm text-muted-foreground text-center py-4">
-                        No notes found
-                    </div>
-                ) : (
-                    visibleNodes.map(node =>
-                        node.type === "folder" ? (
-                            <FolderItem key={node.id} folder={node} />
-                        ) : (
-                            <NoteItem key={node.id} note={node} />
-                        ),
-                    )
-                )}
-            </div>
+            <ExplorerContextMenu
+                target="blank"
+                onCreateNote={handleCreateNote}
+                onCreateFolder={handleCreateFolder}
+            >
+                <div className="flex flex-1 flex-col gap-1 p-2 pb-52">
+                    {hasNoSearchResults ? (
+                        <div className="px-4 text-sm text-muted-foreground text-center py-4">
+                            No notes found
+                        </div>
+                    ) : (
+                        visibleNodes.map(node =>
+                            node.type === "folder" ? (
+                                <FolderItem key={node.id} folder={node} />
+                            ) : (
+                                <NoteItem key={node.id} note={node} />
+                            ),
+                        )
+                    )}
+                </div>
+            </ExplorerContextMenu>
         </>
     );
 };

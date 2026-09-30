@@ -29,7 +29,7 @@ export function AppSidebar({folders,notes}: AppSidebarProps) {
 
                 <SidebarContent>
                     <SidebarGroup className="flex-1">
-                        <SidebarGroupContent>
+                        <SidebarGroupContent className="flex flex-1 flex-col">
                             <Explorer folders={folders} notes={notes} />
                         </SidebarGroupContent>
                     </SidebarGroup>
