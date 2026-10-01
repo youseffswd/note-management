@@ -7,18 +7,14 @@ import {
     CollapsibleTrigger,
 } from "@/shared/components/ui/collapsible";
 import { ChevronRightIcon, FolderIcon } from "lucide-react";
+import { useState } from "react";
 import NoteItem from "./NoteItem";
 import ExplorerContextMenu from "./ExplorerContextMenu";
 import type { Folder } from "../types";
 import { useNodeStore } from "../store/nodes.store";
-
-const folderColors: Record<string, string> = {
-    "chart-1": "text-chart-1",
-    "chart-2": "text-chart-2",
-    "chart-3": "text-chart-3",
-    "chart-4": "text-chart-4",
-    "chart-5": "text-chart-5",
-};
+import { useActiveNoteId } from "../hooks/use-active-note-id";
+import { folderColorClass } from "../utils/folder-colors";
+import { isAncestorOf } from "../utils/folder-path";
 
 interface FolderItemProps {
     folder: Folder;
@@ -26,6 +22,23 @@ interface FolderItemProps {
 
 export default function FolderItem({ folder }: FolderItemProps) {
     const removeFolder = useNodeStore(state => state.removeFolder);
+    const activeNoteId = useActiveNoteId();
+    const containsActiveNote = useNodeStore(state =>
+        activeNoteId
+            ? isAncestorOf(state.nodesHash, folder.id, activeNoteId)
+            : false,
+    );
+
+    // Starts open on the active note's path, so a reload reveals it, and
+    // opens again whenever navigation moves the active note inside it.
+    // Adjusted during render rather than in an effect, to avoid a closed frame.
+    const [open, setOpen] = useState(containsActiveNote);
+    const [prevContainsActiveNote, setPrevContainsActiveNote] =
+        useState(containsActiveNote);
+    if (containsActiveNote !== prevContainsActiveNote) {
+        setPrevContainsActiveNote(containsActiveNote);
+        if (containsActiveNote) setOpen(true);
+    }
 
     const handleCreateNote = () => {};
 
@@ -42,7 +55,7 @@ export default function FolderItem({ folder }: FolderItemProps) {
     };
 
     return (
-        <Collapsible>
+        <Collapsible open={open} onOpenChange={setOpen}>
             <ExplorerContextMenu
                 target="folder"
                 onCreateNote={handleCreateNote}
@@ -60,7 +73,7 @@ export default function FolderItem({ folder }: FolderItemProps) {
                         >
                             <ChevronRightIcon className="transition-transform group-data-[state=open]:rotate-90" />
                             <FolderIcon
-                                className={`${folderColors[folder.colorClass] || "text-foreground"} fill-current`}
+                                className={`${folderColorClass(folder.colorClass)} fill-current`}
                             />
                             {folder.name}
                             <span className="ml-auto text-xs">

@@ -6,13 +6,14 @@ import { removeFolderFromHash } from "../utils/delete-folder-store";
 
 interface NodeStore {
     nodesHash: Record<string, Node>;
-    // Ids deleted this session. The editor flushes its pending save on
-    // unmount, and that save would otherwise put a deleted note back
-    // through ensureNode.
+    // False until the server's nodes are loaded, so an empty hash can be
+    // told apart from a note that does not exist.
+    initialized: boolean;
+    // Ids deleted this session. A save that fails after its note was
+    // deleted must not roll the note back into the hash.
     deletedIds: Record<string, true>;
 
     initilizeNoteStore: (folders: Folder[], notes: Note[]) => Promise<void>;
-    ensureNode: (node: Node) => void;
     addNote: (note: Note) => Promise<void>;
     addFolder: (folder: Folder) => Promise<void>;
     removeNote: (noteId: string) => Promise<void>;
@@ -25,6 +26,7 @@ export const useNodeStore = create<NodeStore>()(
     devtools(
         immer((set, get) => ({
             nodesHash: {},
+            initialized: false,
             deletedIds: {},
 
             initilizeNoteStore: async (folders: Folder[], notes: Note[]) => {
@@ -41,19 +43,7 @@ export const useNodeStore = create<NodeStore>()(
                     {} as Record<string, Node>,
                 ); // building hash
 
-                set({ nodesHash });
-            },
-            // Seeds a node the hash does not have yet. The editor calls this
-            // with its server-fetched note so a save on a directly-loaded page
-            // cannot fail with "Note not found" before Explorer has populated
-            // the hash. Idempotent: never overwrites what is already there,
-            // and never brings back a node deleted this session.
-            ensureNode: (node: Node) => {
-                const { nodesHash, deletedIds } = get();
-                if (nodesHash[node.id] || deletedIds[node.id]) return;
-                set(state => {
-                    state.nodesHash[node.id] = node;
-                });
+                set({ nodesHash, initialized: true });
             },
             addNote: async (note: Note) => {
                 const previousNodesHash = get().nodesHash;

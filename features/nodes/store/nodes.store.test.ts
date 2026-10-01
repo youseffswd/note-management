@@ -29,7 +29,7 @@ const mockFetch = (ok: boolean) =>
     );
 
 beforeEach(() => {
-    useNodeStore.setState({ nodesHash: {}, deletedIds: {} });
+    useNodeStore.setState({ nodesHash: {}, initialized: false, deletedIds: {} });
     useNodeStore
         .getState()
         .initilizeNoteStore(
@@ -45,11 +45,10 @@ afterEach(() => {
 describe("deleted notes do not reappear", () => {
     it("ignores the editor's late save after removeNote", async () => {
         mockFetch(true);
-        const { removeNote, ensureNode, updateNote } = useNodeStore.getState();
+        const { removeNote, updateNote } = useNodeStore.getState();
 
         await removeNote("open-note");
         // What the editor's unmount flush does.
-        ensureNode(note("open-note", null));
         await expect(
             updateNote("open-note", { title: "late edit" }),
         ).rejects.toThrow("Note not found");
@@ -61,10 +60,12 @@ describe("deleted notes do not reappear", () => {
 
     it("ignores the editor's late save after removeFolder", async () => {
         mockFetch(true);
-        const { removeFolder, ensureNode } = useNodeStore.getState();
+        const { removeFolder, updateNote } = useNodeStore.getState();
 
         await removeFolder("work");
-        ensureNode(note("work-note", "work"));
+        await expect(
+            updateNote("work-note", { title: "late edit" }),
+        ).rejects.toThrow("Note not found");
 
         expect(useNodeStore.getState().nodesHash).not.toHaveProperty(
             "work-note",
@@ -100,7 +101,7 @@ describe("deleted notes do not reappear", () => {
 describe("failed deletes roll back", () => {
     it("restores the note and lets it be saved again", async () => {
         mockFetch(false);
-        const { removeNote, ensureNode } = useNodeStore.getState();
+        const { removeNote, updateNote } = useNodeStore.getState();
 
         await expect(removeNote("open-note")).rejects.toThrow();
 
@@ -108,9 +109,10 @@ describe("failed deletes roll back", () => {
         expect(state.nodesHash).toHaveProperty("open-note");
         expect(state.deletedIds).toEqual({});
 
-        useNodeStore.setState({ nodesHash: {} });
-        ensureNode(note("open-note", null));
-        expect(useNodeStore.getState().nodesHash).toHaveProperty("open-note");
+        mockFetch(true);
+        await expect(
+            updateNote("open-note", { title: "edit" }),
+        ).resolves.toMatchObject({ title: "edit" });
     });
 
     it("restores the folder and its notes", async () => {

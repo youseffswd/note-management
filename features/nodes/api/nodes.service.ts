@@ -27,32 +27,6 @@ export async function getNotes(): Promise<Note[]> {
     }));
     return mappedNotes;
 }
-export async function getNote(noteId: string) {
-    const supabase = await createServerSupabase();
-    const userId = (await getUser())?.id;
-    if (!userId) throw new ResponseError("Unauthorized", 401);
-    const { data, error } = await supabase
-        .from("notes")
-        .select("*")
-        .eq("userId", userId)
-        .eq("id", noteId);
-
-    if (error) {
-        console.error("Error fetching note:", error);
-        throw new ResponseError(error.message, 500);
-    }
-    const note: Note = {
-        ...data[0],
-        createdAt: new Date(data[0].createdAt),
-        updatedAt: data[0].updatedAt ? new Date(data[0].updatedAt) : undefined,
-        content: JSON.parse(data[0].content) as PartialBlock[],
-        parentId: data[0].folderId,
-        folderId: undefined,
-        userId: undefined,
-        type: "note",
-    };
-    return note;
-}
 
 export async function getFolders(): Promise<Folder[]> {
     const supabase = await createServerSupabase();

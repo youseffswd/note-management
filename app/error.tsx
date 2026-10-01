@@ -45,7 +45,7 @@ export default function Error({
                     Something went wrong
                 </h1>
                 <p className="text-lg text-muted-foreground max-w-md mb-8 leading-relaxed">
-                    We've encountered an unexpected error. Please try again or return to your dashboard.
+                    We've encountered an unexpected error. Please try again.
                 </p>
 
                 <div className="flex items-center gap-4">

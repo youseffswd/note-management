@@ -4,7 +4,6 @@ export {
     deleteFolder,
     deleteNote,
     getFolders,
-    getNote,
     getNotes,
     updateFolder,
     updateNote,

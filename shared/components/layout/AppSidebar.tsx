@@ -14,13 +14,9 @@ import {
 } from "@/shared/components/ui/sidebar";
 import { Button } from "@/shared/components/ui/button";
 import { useAuthStore } from "@/features/auth";
-import type { Folder, Note } from "@/features/nodes";
 import SidebarResizeHandle from "./SidebarResizeHandle";
-interface AppSidebarProps {
-    folders: Folder[];
-    notes: Note[];
-}
-export function AppSidebar({folders,notes}: AppSidebarProps) {
+
+export function AppSidebar() {
     const pathname = usePathname();
     const { user } = useAuthStore();
     return (
@@ -30,7 +26,7 @@ export function AppSidebar({folders,notes}: AppSidebarProps) {
                 <SidebarContent>
                     <SidebarGroup className="flex-1">
                         <SidebarGroupContent className="flex flex-1 flex-col">
-                            <Explorer folders={folders} notes={notes} />
+                            <Explorer />
                         </SidebarGroupContent>
                     </SidebarGroup>
                 </SidebarContent>
