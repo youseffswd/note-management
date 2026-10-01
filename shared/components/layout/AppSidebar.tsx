@@ -4,7 +4,7 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { SettingsIcon } from "lucide-react";
 
-import { Explorer } from "@/features/nodes";
+import { Explorer } from "@/features/explorer";
 import {
     Sidebar,
     SidebarContent,

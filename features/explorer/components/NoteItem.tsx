@@ -1,13 +1,12 @@
 "use client";
 
 import { Button } from "@/shared/components/ui/button";
-import { Note } from "../types";
+import type { Note } from "@/features/nodes";
 import { FileIcon } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { useEffect, useRef } from "react";
 import ExplorerContextMenu from "./ExplorerContextMenu";
-import { useNodeStore } from "../store/nodes.store";
-import { useActiveNoteId } from "../hooks/use-active-note-id";
+import { useActiveNoteId, useNodeStore } from "@/features/nodes";
 
 interface NoteItemProps {
     note: Note;

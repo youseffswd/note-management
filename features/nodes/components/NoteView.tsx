@@ -1,5 +1,6 @@
 "use client";
 
+import type { ReactNode } from "react";
 import { useAuthStore } from "@/features/auth";
 import { Logo } from "@/shared/components/Logo";
 import { Loader } from "@/shared/components/ui/loader";
@@ -9,10 +10,11 @@ import NoteMetadata from "./NoteMetadata";
 
 interface NoteViewProps {
     noteId: string;
+    children?: ReactNode;
 }
 
 /** Renders a note straight from the store, which holds every note. */
-export default function NoteView({ noteId }: NoteViewProps) {
+export default function NoteView({ noteId, children }: NoteViewProps) {
     const initialized = useNodeStore(state => state.initialized);
     const node = useNodeStore(state => state.nodesHash[noteId]);
     const wasDeleted = useNodeStore(state => Boolean(state.deletedIds[noteId]));
@@ -43,10 +45,18 @@ export default function NoteView({ noteId }: NoteViewProps) {
     }
 
     return (
-        <>
-            <NoteMetadata createdAt={node.createdAt} updatedAt={node.updatedAt} />
-            {/* The editor reads its content once, so a different note needs a fresh instance. */}
-            <Editor key={node.id} className="flex-1 mt-2" note={node} userId={userId} />
-        </>
+        // The editor reads its content once, so a different note needs a fresh instance.
+        <Editor
+            key={node.id}
+            className="flex-1 mt-2"
+            note={node}
+            userId={userId}
+            meta={
+                <>
+                    <NoteMetadata createdAt={node.createdAt} updatedAt={node.updatedAt} />
+                    {children}
+                </>
+            }
+        />
     );
 }

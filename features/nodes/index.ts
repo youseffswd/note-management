@@ -1,9 +1,17 @@
-export { default as Explorer } from "./components/Explorer";
 export { default as Editor } from "./components/EditorWrapper";
 export { default as NoteMetadata } from "./components/NoteMetadata";
 export { default as NoteView } from "./components/NoteView";
 export { default as NoteBreadcrumb } from "./components/NoteBreadcrumb";
 export { default as NodeStoreInitializer } from "./components/NodeStoreInitializer";
+export { default as NoteCard } from "./components/NoteCard";
 export { useNodeStore } from "./store/nodes.store";
+export { useActiveNoteId } from "./hooks/use-active-note-id";
+export { buildTree } from "./utils/tree-build";
+export { createEmptyFolder } from "./utils/create-empty-folder";
+export { createEmptyNote } from "./utils/create-empty-note";
+export { folderColorClass } from "./utils/folder-colors";
+export { isAncestorOf } from "./utils/folder-path";
+export { nextUntitledName } from "./utils/untitled-name";
+export { notesByRecent } from "./utils/recent-notes";
 export { clearAllDrafts } from "./utils/note-draft";
 export type { Note, Folder, Node } from "./types";

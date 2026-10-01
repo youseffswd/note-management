@@ -3,7 +3,6 @@ import { useCallback, useEffect, useRef, useState } from "react";
 import { useDebounceCallback } from "usehooks-ts";
 import type { Note } from "../types";
 import { useNodeStore } from "../store/nodes.store";
-import { extractTitle } from "../utils/extract-title";
 
 const SERVER_DEBOUNCE_MS = 2000;
 const SERVER_DEBOUNCE_OPTIONS = {
@@ -15,6 +14,8 @@ export type SaveStatus = "idle" | "saving" | "saved" | "error";
 interface UseNoteServerSaveOptions {
     note: Note;
     editor: BlockNoteEditor;
+    /** The title field's current value, saved with the content. */
+    getTitle: () => string;
     /** Current edit revision; a save is skipped if nothing changed since. */
     getRevision: () => number;
     /** Called after a successful save with the revision it covered. */
@@ -31,6 +32,7 @@ interface UseNoteServerSaveOptions {
 export function useNoteServerSave({
     note,
     editor,
+    getTitle,
     getRevision,
     onSaved,
     saveOnMount = false,
@@ -43,7 +45,6 @@ export function useNoteServerSave({
     // Refs, not state: these must not change persistContent's identity.
     // useDebounceCallback rebuilds its timer whenever the callback changes,
     // which would orphan a pending save.
-    const titleRef = useRef(note.title);
     const lastSavedRev = useRef(-1);
     const statusTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
 
@@ -68,13 +69,15 @@ export function useNoteServerSave({
                 setStatus("saving");
                 setErrorMessage(null);
 
-                const title = extractTitle(newContent, titleRef.current);
-                titleRef.current = title;
-
-                const saved = await updateNote(note.id, {
-                    title,
-                    content: newContent,
-                });
+                // Blank means the user is still typing a new title: keep the
+                // saved one until they leave the field, which fills one in.
+                const title = getTitle().trim();
+                const saved = await updateNote(
+                    note.id,
+                    title
+                        ? { title, content: newContent }
+                        : { content: newContent },
+                );
 
                 onSaved(revAtRequest, saved);
                 markSaved();
@@ -100,7 +103,7 @@ export function useNoteServerSave({
                 }
             }
         },
-        [note.id, updateNote, markSaved, getRevision, onSaved],
+        [note.id, updateNote, markSaved, getTitle, getRevision, onSaved],
     );
 
     const scheduleSave = useDebounceCallback(

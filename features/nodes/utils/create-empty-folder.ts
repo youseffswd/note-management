@@ -9,11 +9,14 @@ const FOLDER_COLOR_CLASSES = [
     "chart-5",
 ];
 
-export function createEmptyFolder(): Folder {
+export function createEmptyFolder(
+    name: string,
+    parentId: string | null = null,
+): Folder {
     return {
         id: uuidv4(),
-        name: "Untitled Folder",
-        parentId: null,
+        name,
+        parentId,
         children: [],
         createdAt: new Date(),
         type: "folder",

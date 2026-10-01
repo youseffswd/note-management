@@ -177,8 +177,12 @@ export function resolveDraft(
     if (!draft || draft.noteId !== note.id) return { kind: "none" };
 
     // The server already holds this content: the save landed and only the
-    // clear was lost. Nothing to recover, so don't prompt.
-    if (jsonEquals(draft.content, note.content)) return { kind: "none" };
+    // clear was lost. Nothing to recover, so don't prompt. A blank title is
+    // never saved, so it does not count as a difference.
+    const titleSaved = !draft.title || draft.title === note.title;
+    if (titleSaved && jsonEquals(draft.content, note.content)) {
+        return { kind: "none" };
+    }
 
     return draft.baseUpdatedAt === serverBaseline(note)
         ? { kind: "restore", draft }

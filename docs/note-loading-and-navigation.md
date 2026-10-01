@@ -152,7 +152,7 @@ flowchart TD
 | [use-note-server-save.ts](../features/nodes/hooks/use-note-server-save.ts) | Removed the `ensureNode` call and the `noteRef` that only existed to feed it. | Same reason. |
 | [AppLayout.tsx](../shared/components/layout/AppLayout.tsx) | Renders `<NodeStoreInitializer folders notes />`; no longer passes the data to `AppSidebar`. | `AppLayout` is always mounted. |
 | [AppSidebar.tsx](../shared/components/layout/AppSidebar.tsx) | No longer takes `folders` and `notes`. | It only passed them to `Explorer`. |
-| [Explorer.tsx](../features/nodes/components/Explorer.tsx) | No longer takes props or fills the store; it only reads from it. | Moved to `NodeStoreInitializer`. |
+| [Explorer.tsx](../features/explorer/components/Explorer.tsx) | No longer takes props or fills the store; it only reads from it. | Moved to `NodeStoreInitializer`. |
 | [nodes.service.ts](../features/nodes/api/nodes.service.ts), [server.ts](../features/nodes/server.ts) | Removed `getNote`. | No remaining callers. |
 | [index.ts](../features/nodes/index.ts) | Exports `NoteView` and `NodeStoreInitializer`. | Used by the page and the layout. |
 | [nodes.store.test.ts](../features/nodes/store/nodes.store.test.ts) | Tests that seeded notes with `ensureNode` now check that `updateNote` rejects a deleted note, and that a note restored after a failed delete can be saved. | Same guarantees, without `ensureNode`. |
@@ -188,7 +188,7 @@ Every part of this feature, and the delete handling in `NoteItem`, reads the act
 
 ### B3. Highlighting the active note
 
-[NoteItem.tsx](../features/nodes/components/NoteItem.tsx):
+[NoteItem.tsx](../features/explorer/components/NoteItem.tsx):
 
 - Sets `aria-current="page"` on the active note's button and styles it with `aria-[current=page]:…` classes. The attribute also tells screen readers which note is open.
 - When the note becomes active, calls `scrollIntoView({ block: "nearest" })`. `nearest` does nothing if the note is already visible, so clicking a visible note never jumps the list. Its folders are already open at that point ([B4](#b4-opening-folders-along-the-path)), so the element is on screen to scroll to.
@@ -203,7 +203,7 @@ Search results are a flat list of the same `NoteItem`s, so the highlight also wo
 - `getAncestorFolders(nodesHash, nodeId)`: the folders containing a node, outermost first, found by following `parentId` upward. It stops at a missing parent and also stops if folders ever point to each other in a loop, so it can never hang.
 - `isAncestorOf(nodesHash, folderId, nodeId)`: whether a folder is on that path.
 
-[FolderItem.tsx](../features/nodes/components/FolderItem.tsx) used to let the collapsible manage its own open state. It now holds `open` itself:
+[FolderItem.tsx](../features/explorer/components/FolderItem.tsx) used to let the collapsible manage its own open state. It now holds `open` itself:
 
 ```mermaid
 flowchart TD
@@ -263,8 +263,8 @@ The folder color lookup was moved out of `FolderItem` into [folder-colors.ts](..
 
 | File | Change | Why |
 | --- | --- | --- |
-| [NoteItem.tsx](../features/nodes/components/NoteItem.tsx) | Active highlight, scroll into view, `isActive` in delete. Replaced `usePathname().split("/")` with `useActiveNoteId`. | [B3](#b3-highlighting-the-active-note) |
-| [FolderItem.tsx](../features/nodes/components/FolderItem.tsx) | Holds its own open state and opens along the active path. Uses `folderColorClass`. | [B4](#b4-opening-folders-along-the-path) |
+| [NoteItem.tsx](../features/explorer/components/NoteItem.tsx) | Active highlight, scroll into view, `isActive` in delete. Replaced `usePathname().split("/")` with `useActiveNoteId`. | [B3](#b3-highlighting-the-active-note) |
+| [FolderItem.tsx](../features/explorer/components/FolderItem.tsx) | Holds its own open state and opens along the active path. Uses `folderColorClass`. | [B4](#b4-opening-folders-along-the-path) |
 | [AppLayout.tsx](../shared/components/layout/AppLayout.tsx) | Header renders `NoteBreadcrumb`; added `gap-3`. | [B5](#b5-the-breadcrumb) |
 | [index.ts](../features/nodes/index.ts) | Exports `NoteBreadcrumb`. | Used by the layout. |
 
