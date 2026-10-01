@@ -3,9 +3,11 @@
 import { Button } from "@/shared/components/ui/button";
 import { Note } from "../types";
 import { FileIcon } from "lucide-react";
-import { usePathname, useRouter } from "next/navigation";
+import { useRouter } from "next/navigation";
+import { useEffect, useRef } from "react";
 import ExplorerContextMenu from "./ExplorerContextMenu";
 import { useNodeStore } from "../store/nodes.store";
+import { useActiveNoteId } from "../hooks/use-active-note-id";
 
 interface NoteItemProps {
     note: Note;
@@ -13,17 +15,24 @@ interface NoteItemProps {
 
 export default function NoteItem({ note }: NoteItemProps) {
     const removeNote = useNodeStore(state => state.removeNote);
-    const pathname = usePathname();
+    const activeNoteId = useActiveNoteId();
+    const isActive = activeNoteId === note.id;
     const router = useRouter();
+    const buttonRef = useRef<HTMLButtonElement>(null);
+
+    // Its folders are already open on this render, so it can be scrolled to.
+    useEffect(() => {
+        if (isActive) buttonRef.current?.scrollIntoView({ block: "nearest" });
+    }, [isActive]);
+
     const handleRename = () => {};
 
     const handleDuplicate = () => {};
 
     const handleDelete = async () => {
-        const noteId = pathname.split("/").pop();
         try {
             await removeNote(note.id);
-            if(noteId === note.id) router.push("/dashboard/notes")
+            if (isActive) router.push("/dashboard/notes");
 
         } catch (error) {
             console.error("Error deleting folder:", error);
@@ -38,10 +47,12 @@ export default function NoteItem({ note }: NoteItemProps) {
             onDelete={handleDelete}
         >
             <Button
+                ref={buttonRef}
                 variant="link"
+                aria-current={isActive ? "page" : undefined}
                 onClick={() => router.push(`/dashboard/notes/${note.id}`)}
                 size="sm"
-                className="w-full items-center justify-start gap-2 text-sidebar-foreground transition hover:bg-accent! hover:text-accent-foreground hover:no-underline data-[state=open]:bg-accent"
+                className="w-full items-center justify-start gap-2 text-sidebar-foreground transition hover:bg-accent! hover:text-accent-foreground hover:no-underline data-[state=open]:bg-accent aria-[current=page]:bg-accent aria-[current=page]:font-medium aria-[current=page]:text-accent-foreground"
             >
                 <FileIcon className="text-amber-500 mb-px" />
                 <span>{note.title}</span>

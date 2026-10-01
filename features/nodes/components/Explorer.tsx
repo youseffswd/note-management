@@ -1,12 +1,12 @@
 "use client";
 
-import { useEffect, useMemo, useState } from "react";
+import { useMemo, useState } from "react";
 import { useRouter } from "next/navigation";
 import { useDebounceCallback } from "usehooks-ts";
 
 import { SidebarHeader } from "@/shared/components/ui/sidebar";
 import { useNodeStore } from "../store/nodes.store";
-import type { Folder, Note } from "../types";
+import type { Note } from "../types";
 import { buildTree } from "../utils/tree-build";
 import { createEmptyNote } from "../utils/create-empty-note";
 import { createEmptyFolder } from "../utils/create-empty-folder";
@@ -16,25 +16,15 @@ import ExplorerSearch from "./ExplorerSearch";
 import FolderItem from "./FolderItem";
 import NoteItem from "./NoteItem";
 
-interface ExplorerProps {
-    notes: Note[];
-    folders: Folder[];
-}
-
-const Explorer = ({ notes, folders }: ExplorerProps) => {
+const Explorer = () => {
     const router = useRouter();
 
-    const initilizeNoteStore = useNodeStore(state => state.initilizeNoteStore);
     const nodesHash = useNodeStore(state => state.nodesHash);
     const addNote = useNodeStore(state => state.addNote);
     const addFolder = useNodeStore(state => state.addFolder);
 
     const [searchQuery, setSearchQuery] = useState("");
     const debouncedSetSearchQuery = useDebounceCallback(setSearchQuery, 300);
-
-    useEffect(() => {
-        initilizeNoteStore(folders, notes);
-    }, [initilizeNoteStore, folders, notes]);
 
     const {roots: rootNodes} = useMemo(() => buildTree(nodesHash), [nodesHash]);
 

@@ -1,6 +1,9 @@
 export { default as Explorer } from "./components/Explorer";
 export { default as Editor } from "./components/EditorWrapper";
 export { default as NoteMetadata } from "./components/NoteMetadata";
+export { default as NoteView } from "./components/NoteView";
+export { default as NoteBreadcrumb } from "./components/NoteBreadcrumb";
+export { default as NodeStoreInitializer } from "./components/NodeStoreInitializer";
 export { useNodeStore } from "./store/nodes.store";
 export { clearAllDrafts } from "./utils/note-draft";
 export type { Note, Folder, Node } from "./types";

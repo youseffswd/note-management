@@ -36,7 +36,6 @@ export function useNoteServerSave({
     saveOnMount = false,
 }: UseNoteServerSaveOptions) {
     const updateNote = useNodeStore(state => state.updateNote);
-    const ensureNode = useNodeStore(state => state.ensureNode);
 
     const [status, setStatus] = useState<SaveStatus>("idle");
     const [errorMessage, setErrorMessage] = useState<string | null>(null);
@@ -44,14 +43,9 @@ export function useNoteServerSave({
     // Refs, not state: these must not change persistContent's identity.
     // useDebounceCallback rebuilds its timer whenever the callback changes,
     // which would orphan a pending save.
-    const noteRef = useRef(note);
     const titleRef = useRef(note.title);
     const lastSavedRev = useRef(-1);
     const statusTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
-
-    useEffect(() => {
-        noteRef.current = note;
-    }, [note]);
 
     useEffect(() => {
         return () => {
@@ -69,9 +63,6 @@ export function useNoteServerSave({
         async (newContent: Block[]) => {
             const revAtRequest = getRevision();
             if (revAtRequest <= lastSavedRev.current) return;
-            // The hash is only populated by Explorer's effect; seeding here
-            // keeps a save on a directly-loaded page from throwing.
-            ensureNode(noteRef.current);
 
             try {
                 setStatus("saving");
@@ -109,7 +100,7 @@ export function useNoteServerSave({
                 }
             }
         },
-        [note.id, updateNote, ensureNode, markSaved, getRevision, onSaved],
+        [note.id, updateNote, markSaved, getRevision, onSaved],
     );
 
     const scheduleSave = useDebounceCallback(
