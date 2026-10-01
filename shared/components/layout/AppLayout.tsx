@@ -9,8 +9,11 @@ import {
 import { AppSidebar } from "./AppSidebar";
 import { MobileBottomNav } from "./MobileBottomNav";
 import LeftRail from "./LeftRail";
+import SectionTitle from "./SectionTitle";
 import { NodeStoreInitializer, NoteBreadcrumb } from "@/features/nodes";
 import type { Folder, Note } from "@/features/nodes";
+import NoteActions from "./NoteActions";
+import NoteFeaturesInitializer from "./NoteFeaturesInitializer";
 interface AppLayoutProps {
     children: ReactNode;
     folders: Folder[];
@@ -21,6 +24,7 @@ export default function AppLayout({ children, folders, notes }: AppLayoutProps) 
     return (
         <SidebarProvider>
             <NodeStoreInitializer folders={folders} notes={notes} />
+            <NoteFeaturesInitializer />
             <div className="flex h-screen w-full overflow-hidden">
                 {/* Desktop Left Rail — hidden on mobile */}
                 <LeftRail  />
@@ -36,6 +40,10 @@ export default function AppLayout({ children, folders, notes }: AppLayoutProps) 
                     <header className="h-14 flex items-center gap-3 px-4 border-b border-border shrink-0 bg-background">
                         <SidebarTrigger />
                         <NoteBreadcrumb />
+                        <SectionTitle />
+                        <div className="ml-auto flex items-center gap-1">
+                            <NoteActions />
+                        </div>
                     </header>
 
                     {/* Page content */}
