@@ -9,7 +9,6 @@ import {
     type DraftResolution,
     type NoteDraft,
 } from "../utils/note-draft";
-import { extractTitle } from "../utils/extract-title";
 
 /** Local mirror, kept well ahead of the server save. */
 const DRAFT_DEBOUNCE_MS = 150;
@@ -21,6 +20,8 @@ interface UseNoteDraftOptions {
     note: Note;
     userId: string;
     editor: BlockNoteEditor;
+    /** The title field's current value, backed up with the content. */
+    getTitle: () => string;
     /** From loadDraftResolution, computed once before the editor was created. */
     resolution: DraftResolution;
 }
@@ -33,6 +34,7 @@ export function useNoteDraft({
     note,
     userId,
     editor,
+    getTitle,
     resolution,
 }: UseNoteDraftOptions) {
     const [conflict, setConflict] = useState<NoteDraft | null>(
@@ -45,7 +47,6 @@ export function useNoteDraft({
     // Refs, not state: these must not change the callbacks' identity.
     // useDebounceCallback rebuilds its timer whenever the callback changes,
     // which would orphan a pending write.
-    const titleRef = useRef(note.title);
     const baselineRef = useRef(serverBaseline(note));
     const revRef = useRef(0);
 
@@ -57,18 +58,16 @@ export function useNoteDraft({
 
     const writeDraftNow = useCallback(
         (content: PartialBlock[]) => {
-            const title = extractTitle(content, titleRef.current);
-            titleRef.current = title;
             writeDraft({
                 noteId: note.id,
                 userId,
-                title,
+                title: getTitle(),
                 content,
                 baseUpdatedAt: baselineRef.current,
                 rev: revRef.current,
             });
         },
-        [note.id, userId],
+        [note.id, userId, getTitle],
     );
 
     const scheduleDraft = useDebounceCallback(
@@ -102,7 +101,7 @@ export function useNoteDraft({
         };
     }, [flushDraft]);
 
-    /** Call on every editor change, before scheduling the server save. */
+    /** Call on every editor or title change, before scheduling the server save. */
     const recordChange = useCallback(
         (content: PartialBlock[]) => {
             // Bumped synchronously so a save that resolves mid-keystroke
@@ -130,7 +129,10 @@ export function useNoteDraft({
         [userId, note.id],
     );
 
-    /** Loads the conflicting draft into the editor. Returns false if none. */
+    /**
+     * Loads the conflicting draft's content into the editor. Returns false if
+     * none. Its title is the caller's to restore, before calling this.
+     */
     const restoreConflict = useCallback(() => {
         if (!conflict) return false;
         setConflict(null);

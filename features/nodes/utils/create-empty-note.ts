@@ -1,22 +1,15 @@
 import { v4 as uuidv4 } from "uuid";
 import type { Note } from "../types";
 
-export function createEmptyNote(): Note {
+export function createEmptyNote(
+    title: string,
+    parentId: string | null = null,
+): Note {
     return {
         id: uuidv4(),
-        title: "Untitled",
+        title,
+        // The title is its own field, so the body starts empty.
         content: [
-            {
-                type: "heading",
-                props: { level: 1 },
-                content: [
-                    {
-                        type: "text",
-                        text: "Untitled Note",
-                        styles: {},
-                    },
-                ],
-            },
             {
                 type: "paragraph",
                 content: [],
@@ -24,6 +17,6 @@ export function createEmptyNote(): Note {
         ],
         type: "note",
         createdAt: new Date(),
-        parentId: null,
+        parentId,
     };
 }

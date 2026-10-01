@@ -30,7 +30,7 @@ Flowcharts read from top to bottom. Diamonds ask a question; labeled arrows show
 
 | Part | Responsibility |
 | --- | --- |
-| Note page and `EditorWrapper` | Fetch the note and user, show loading indicators, then load the editor in the browser with `ssr: false`. |
+| Note page, `NoteView`, and `EditorWrapper` | Read the note from the nodes store (no server fetch; see [note-loading-and-navigation.md](note-loading-and-navigation.md)), wait until the store and the user are ready, then load the editor in the browser with `ssr: false`. |
 | `Editor` / BlockNote | Choose starting content once, display the document and banners, and send every document change to both hooks. |
 | `useNoteDraft` | Own the edit revision, conflict/recovery notices, and fast local backup. Flush that backup when hiding or leaving. |
 | `useNoteServerSave` | Debounce server saves, call the store, report save status, and notify the draft hook after success. |
@@ -56,7 +56,7 @@ The draft decision runs **before BlockNote is created**. BlockNote reads `initia
 
 ```mermaid
 flowchart TD
-    A([Open a note]) --> B["Note page fetches note and user<br/>Loading indicator while waiting"]
+    A([Open a note]) --> B["NoteView reads the note from the store<br/>Loader until store and user are ready"]
     B --> C["EditorWrapper loads Editor in browser<br/>ssr: false; loading indicator while importing"]
     C --> D["loadDraftResolution runs once<br/>Read this user's draft for this note"]
     D --> E{"Usable local draft?"}
@@ -88,7 +88,7 @@ A missing draft or unavailable storage follows “No.” Invalid JSON, a mismatc
 
 Content comparison uses `JSON.stringify` equality. Baselines are compared by **equality**, not by which timestamp is newer. `savedAt` is used for the banner's date, not for deciding whether to restore.
 
-The opening diagrams assume the page successfully loads an authenticated user's note. A fetch/authentication error happens before the editor flow; if the separate user result is absent, `NoteDataFetcher` renders nothing.
+The opening diagrams assume the note is in the store and the user is known. Until both are true `NoteView` shows a loader; if the note is missing it shows "Note not found" or "This note was deleted" and the editor never mounts.
 
 ## 3. Flowchart — an edit starts two independent timers
 
@@ -96,12 +96,12 @@ The two hook calls happen in order, but their timers run independently. The serv
 
 ```mermaid
 flowchart TD
-    A(["User changes the document<br/>or Restore mine replaces its blocks"]) --> B["BlockNote onChange → handleChange<br/>Read editor.document"]
+    A(["User changes the document or the title<br/>or Restore mine replaces its blocks"]) --> B["BlockNote onChange or title input → handleChange<br/>Read editor.document"]
     B --> C["1. recordChange(content)<br/>Increment rev synchronously"]
     C --> D["Queue local draft<br/>150 ms debounce; 500 ms maxWait"]
     D --> E["2. scheduleSave(content)<br/>2 s debounce; 5 s maxWait"]
     E --> F["Typing can continue<br/>Each change repeats this flow"]
-    D -.->|Local timer fires| G["writeDraftNow<br/>Extract title; attach current baseline and rev"]
+    D -.->|Local timer fires| G["writeDraftNow<br/>Read title field; attach current baseline and rev"]
     G --> H["writeDraft adds savedAt<br/>Serialize and try localStorage"]
     H --> I{"Stored successfully?"}
     I -->|Yes| J(["Local backup available<br/>No server acknowledgement yet"])
@@ -115,7 +115,7 @@ flowchart TD
     class I,K warn;
 ```
 
-For both writes, the title comes from the **first text run in the first block**, trimmed. If that text is absent or empty, the hook retains its last title, initially `note.title`. The whole document is saved as content; title extraction does not scan the whole document.
+The title is its own field above the body, not part of the document. Both writes read its current value through `getTitle`. Editing the title goes through the same `handleChange`, so a title edit bumps the revision and is backed up and saved like a body edit. The draft keeps the title exactly as typed. The server save trims it and, if it is blank, sends the content only, so the saved title stays until the field is left. Leaving the field (blur, or Enter, which moves the cursor into the body) replaces a blank title with an untitled name such as "Untitled Note 2" and flushes the pending save.
 
 `recordChange` does not change the save badge. During the debounce wait, it can still show nothing, “Saved,” or an earlier error. An edit can also arrive while a request is in progress.
 
@@ -128,8 +128,8 @@ flowchart TD
     A([persistContent receives document]) --> B["Capture revAtRequest = getRevision()"]
     B --> C{"revAtRequest is at or below<br/>lastSavedRev?"}
     C -->|Yes| D(["Skip this request<br/>Status and draft are unchanged"])
-    C -->|No| E["ensureNode seeds the store if missing<br/>status = saving; clear error message"]
-    E --> F["Extract title<br/>Call store.updateNote with title and content"]
+    C -->|No| E["status = saving; clear error message"]
+    E --> F["Read and trim title<br/>Call store.updateNote with title and content<br/>(content only when the title is blank)"]
     F --> G["Store remembers previous note<br/>Build updated note with client updatedAt<br/>Show it optimistically"]
     G --> H["PUT /api/notes/id<br/>Send the complete updated note"]
     H --> I["Route uses URL id<br/>Service checks authenticated user<br/>Update Supabase row by id AND userId"]
@@ -240,7 +240,7 @@ sequenceDiagram
     participant L as localStorage
     participant S as Server-save hook
     U->>P: Open note
-    Note over P: Fetch note and user, show loading fallback
+    Note over P: Read note from store, loader until store and user are ready
     P->>E: Browser-only mount with note and userId
     E->>D: loadDraftResolution(userId, note)
     D->>L: Read this user's note draft
@@ -297,8 +297,7 @@ sequenceDiagram
     alt N is already covered by lastSavedRev
         Note over S: Return without request or status change
     else A save is needed
-        S->>N: ensureNode(note)
-        S->>S: status = saving, clear error, extract title
+        S->>S: status = saving, clear error, read title
         S->>N: updateNote(id, title, content)
         N->>N: Snapshot previous note, optimistic update<br/>Create updatedAt on client
         N->>A: PUT complete note to /api/notes/id
@@ -463,14 +462,14 @@ These are configured timer delays, not real-time deadlines. Network duration is 
 | Draft field | Purpose |
 | --- | --- |
 | `noteId`, `userId` | Identify the note and account. |
-| `title`, `content` | Backed-up title and complete BlockNote document. Restore installs the content; it does not seed the hooks' title refs from the stored title. |
+| `title`, `content` | Backed-up title and complete BlockNote document. Restore installs both: a silent restore opens with the draft's title (unless it is blank), and "Restore mine" sets the title before replacing the blocks. A blank draft title does not count as a difference from the server. |
 | `savedAt` | Local write time in epoch milliseconds; used for the banner date. |
 | `baseUpdatedAt` | Timestamp of the note version the draft continues from; may be `null`. |
 | `rev` | Editor-mount revision attached to this snapshot; used by conditional removal. |
 
 Writes that cannot be serialized or exceed **524,288 serialized characters** are skipped. If `setItem` throws, the utility removes this user's **other** note drafts and retries once. A second failure is silent. Reads/removals also tolerate unavailable storage. These operations do not set the server-save status.
 
-The hooks keep revision, baseline, and title in refs so those value changes do not replace the debounced callbacks. The save hook also refreshes its note ref when the note prop changes. Draft resolution and BlockNote initial content are still initialized only once per editor mount.
+The hooks keep revision and baseline in refs, and read the title through the editor's `getTitle` ref, so those value changes do not replace the debounced callbacks. The save hook also refreshes its note ref when the note prop changes. Draft resolution and BlockNote initial content are still initialized only once per editor mount.
 
 ## 13. What “finished and idle” means
 
@@ -511,7 +510,7 @@ These details explain why some paths do not reach the completely clean endpoint 
 
 | File | Relevant part of the flow |
 | --- | --- |
-| [Note page](../app/%28protected%29/dashboard/notes/%5Bnote%5D/page.tsx) | Server-side note/user loading and loading fallback. |
+| [Note page](../app/%28protected%29/dashboard/notes/%5Bnote%5D/page.tsx) and [NoteView.tsx](../features/nodes/components/NoteView.tsx) | Reads the note from the store; loader, not-found, and deleted states. |
 | [EditorWrapper.tsx](../features/nodes/components/EditorWrapper.tsx) | Browser-only dynamic editor mount. |
 | [Editor.tsx](../features/nodes/components/Editor.tsx) | Initial resolution, hook order, change handler, restore/flush wiring, and indicators. |
 | [use-note-draft.ts](../features/nodes/hooks/use-note-draft.ts) | Local debounce, revision, baseline, recovery, conflict handlers, and lifecycle flushes. |
@@ -519,9 +518,9 @@ These details explain why some paths do not reach the completely clean endpoint 
 | [note-draft.ts](../features/nodes/utils/note-draft.ts) | Storage format, validation, resolution, conditional removal, and quota handling. |
 | [extract-title.ts](../features/nodes/utils/extract-title.ts) | First-block/first-text-run title extraction and fallback. |
 | [DraftBanner.tsx](../features/nodes/components/DraftBanner.tsx) | Conflict date and user choices. |
-| [nodes.store.ts](../features/nodes/store/nodes.store.ts) | Store seeding, optimistic update, client timestamp, PUT, and rollback. |
+| [nodes.store.ts](../features/nodes/store/nodes.store.ts) | Store initialization, optimistic update, client timestamp, PUT, and rollback. |
 | [Note API route](../app/api/notes/%5Bid%5D/route.ts) | URL note ID, request parsing, and success/error response. |
 | [nodes.service.ts](../features/nodes/api/nodes.service.ts) | Authenticated Supabase reads and writes. |
-| [Explorer.tsx](../features/nodes/components/Explorer.tsx) | Normal store initialization; explains why direct editor loads also call `ensureNode`. |
+| [NodeStoreInitializer.tsx](../features/nodes/components/NodeStoreInitializer.tsx) | Fills the store once from the layout's data; the editor only mounts after that. |
 
 Scope: opening and editing an existing note through the editor save lifecycle. Note creation, deletion, and folder operations are outside this flow. The diagrams describe the code as inspected on 2026-09-29, including the working-tree hook refactor.

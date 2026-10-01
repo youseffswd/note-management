@@ -1,6 +1,7 @@
 "use client";
 
 import dynamic from "next/dynamic";
+import type { ReactNode } from "react";
 import type { Note } from "../types";
 import { Loader } from "@/shared/components/ui/loader";
 
@@ -14,6 +15,14 @@ const Editor = dynamic(() => import("./Editor"), {
     )
 });
 
-export default function EditorWrapper({ className, note, userId }: { className?: string; note: Note; userId: string }) {
-    return <Editor className={className || ""} note={note} userId={userId} />;
+interface EditorWrapperProps {
+    className?: string;
+    note: Note;
+    userId: string;
+    /** Rendered between the title and the body. */
+    meta?: ReactNode;
+}
+
+export default function EditorWrapper({ className, note, userId, meta }: EditorWrapperProps) {
+    return <Editor className={className || ""} note={note} userId={userId} meta={meta} />;
 }
