@@ -1,5 +1,5 @@
 import { create } from "zustand";
-import type { Node } from "../types";
+import type { Node } from "@/features/nodes";
 
 export interface PendingNode {
     type: Node["type"];

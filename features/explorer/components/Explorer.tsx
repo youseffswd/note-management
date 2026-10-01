@@ -4,10 +4,9 @@ import { useMemo, useState } from "react";
 import { useDebounceCallback } from "usehooks-ts";
 
 import { SidebarHeader } from "@/shared/components/ui/sidebar";
-import { useNodeStore } from "../store/nodes.store";
+import { buildTree, useNodeStore } from "@/features/nodes";
+import type { Note } from "@/features/nodes";
 import { useExplorerStore } from "../store/explorer.store";
-import type { Note } from "../types";
-import { buildTree } from "../utils/tree-build";
 import ExplorerActions from "./ExplorerActions";
 import ExplorerContextMenu from "./ExplorerContextMenu";
 import ExplorerSearch from "./ExplorerSearch";

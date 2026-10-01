@@ -11,12 +11,14 @@ import { useState } from "react";
 import NoteItem from "./NoteItem";
 import NewNodeInput from "./NewNodeInput";
 import ExplorerContextMenu from "./ExplorerContextMenu";
-import type { Folder } from "../types";
-import { useNodeStore } from "../store/nodes.store";
+import {
+    folderColorClass,
+    isAncestorOf,
+    useActiveNoteId,
+    useNodeStore,
+} from "@/features/nodes";
+import type { Folder } from "@/features/nodes";
 import { useExplorerStore } from "../store/explorer.store";
-import { useActiveNoteId } from "../hooks/use-active-note-id";
-import { folderColorClass } from "../utils/folder-colors";
-import { isAncestorOf } from "../utils/folder-path";
 
 interface FolderItemProps {
     folder: Folder;

@@ -217,7 +217,7 @@ BlockNote body</code></pre>
 </ul>
 <h3 id="how-it-works-1">How it works</h3>
 <p>A small store holds the one node being named:</p>
-<pre><code>// features/nodes/store/explorer.store.ts
+<pre><code>// features/explorer/store/explorer.store.ts
 pendingNode: { type: &quot;note&quot; | &quot;folder&quot;; parentId: string | null } | null
 startCreating(type, parentId)
 stopCreating()</code></pre>
@@ -265,27 +265,27 @@ stopCreating()</code></pre>
 </tr>
 </thead>
 <tbody><tr>
-<td><a href="../features/nodes/store/explorer.store.ts"><code>features/nodes/store/explorer.store.ts</code></a></td>
+<td><a href="../features/explorer/store/explorer.store.ts"><code>features/explorer/store/explorer.store.ts</code></a></td>
 <td>Created</td>
 <td>Holds <code>pendingNode</code>. A store rather than props, so any <code>FolderItem</code> at any depth can show the field without threading props through the tree.</td>
 </tr>
 <tr>
-<td><a href="../features/nodes/components/NewNodeInput.tsx"><code>features/nodes/components/NewNodeInput.tsx</code></a></td>
+<td><a href="../features/explorer/components/NewNodeInput.tsx"><code>features/explorer/components/NewNodeInput.tsx</code></a></td>
 <td>Created</td>
 <td>The inline name field: placeholder, Enter/blur/Escape handling, creating the folder or note, and opening the new note.</td>
 </tr>
 <tr>
-<td><a href="../features/nodes/components/Explorer.tsx"><code>features/nodes/components/Explorer.tsx</code></a></td>
+<td><a href="../features/explorer/components/Explorer.tsx"><code>features/explorer/components/Explorer.tsx</code></a></td>
 <td>Changed</td>
 <td>New Note / New Folder now call <code>startCreating(type, null)</code> instead of creating an &quot;Untitled&quot; node straight away. Renders the root name field. The <code>useRouter</code>, <code>addNote</code> and <code>addFolder</code> usage moved into <code>NewNodeInput</code>.</td>
 </tr>
 <tr>
-<td><a href="../features/nodes/components/FolderItem.tsx"><code>features/nodes/components/FolderItem.tsx</code></a></td>
+<td><a href="../features/explorer/components/FolderItem.tsx"><code>features/explorer/components/FolderItem.tsx</code></a></td>
 <td>Changed</td>
 <td>The folder menu&#39;s New Note / New Folder, which were empty stubs, now call <code>startCreating(type, folder.id)</code>. Opens the folder while its field is pending and renders the field after its children.</td>
 </tr>
 <tr>
-<td><a href="../features/nodes/components/ExplorerContextMenu.tsx"><code>features/nodes/components/ExplorerContextMenu.tsx</code></a></td>
+<td><a href="../features/explorer/components/ExplorerContextMenu.tsx"><code>features/explorer/components/ExplorerContextMenu.tsx</code></a></td>
 <td>Changed</td>
 <td>Defers create actions to <code>onCloseAutoFocus</code>, as explained above.</td>
 </tr>
@@ -730,25 +730,25 @@ CREATE TABLE &quot;note_tags&quot; (
 <td>Forwards <code>meta</code></td>
 </tr>
 <tr>
-<td><code>features/nodes/components/Explorer.tsx</code></td>
+<td><code>features/explorer/components/Explorer.tsx</code></td>
 <td>Changed</td>
 <td>2</td>
 <td>Root create → inline field</td>
 </tr>
 <tr>
-<td><code>features/nodes/components/ExplorerContextMenu.tsx</code></td>
+<td><code>features/explorer/components/ExplorerContextMenu.tsx</code></td>
 <td>Changed</td>
 <td>2</td>
 <td>Create actions run after the menu closes</td>
 </tr>
 <tr>
-<td><code>features/nodes/components/FolderItem.tsx</code></td>
+<td><code>features/explorer/components/FolderItem.tsx</code></td>
 <td>Changed</td>
 <td>2</td>
 <td>Create inside a folder; opens for the field</td>
 </tr>
 <tr>
-<td><code>features/nodes/components/NewNodeInput.tsx</code></td>
+<td><code>features/explorer/components/NewNodeInput.tsx</code></td>
 <td>Created</td>
 <td>2</td>
 <td>Inline name field</td>
@@ -832,7 +832,7 @@ CREATE TABLE &quot;note_tags&quot; (
 <td>New exports</td>
 </tr>
 <tr>
-<td><code>features/nodes/store/explorer.store.ts</code></td>
+<td><code>features/explorer/store/explorer.store.ts</code></td>
 <td>Created</td>
 <td>2</td>
 <td>Pending inline create</td>

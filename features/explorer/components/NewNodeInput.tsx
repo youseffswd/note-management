@@ -5,11 +5,13 @@ import type { FocusEvent, KeyboardEvent } from "react";
 import { useRouter } from "next/navigation";
 import { FileIcon, FolderIcon } from "lucide-react";
 
-import { useNodeStore } from "../store/nodes.store";
+import {
+    createEmptyFolder,
+    createEmptyNote,
+    nextUntitledName,
+    useNodeStore,
+} from "@/features/nodes";
 import { useExplorerStore, type PendingNode } from "../store/explorer.store";
-import { createEmptyFolder } from "../utils/create-empty-folder";
-import { createEmptyNote } from "../utils/create-empty-note";
-import { nextUntitledName } from "../utils/untitled-name";
 
 /**
  * Inline name field for a note or folder that does not exist yet. Enter or

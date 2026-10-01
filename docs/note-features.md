@@ -40,12 +40,15 @@ Nothing on the server changed: the API routes, `nodes.service.ts`, `nodes.store.
 
 ### Feature ownership
 
-- `features/nodes`: notes, folders, editor, explorer, and reusable note cards.
+- `features/nodes`: note/folder types, data, persistence, naming and hierarchy rules, editor, and reusable note cards.
+- `features/explorer`: sidebar tree, search, note/folder rows, context menus, inline creation UI, and temporary explorer state.
 - `features/tags`: tag types, colors, store, picker, badges, and Tags view.
 - `features/starred`: starred state, star button, and Starred view.
 - Pages and `shared/components/layout` compose the features through their public `index.ts` exports. `NoteActions` belongs to the layout; `NoteView` receives the tag picker as children.
 
-The stores still use browser storage and retain the existing account and logout behavior. The migration is in [`shared/lib/migrate-note-meta.ts`](../shared/lib/migrate-note-meta.ts).
+The explorer imports node actions and helpers through `@/features/nodes`; `nodes` has no dependency on the explorer. The node store remains the single source of note/folder data, initialized by `NodeStoreInitializer` in the app layout. `buildTree` stays in `nodes` because folder deletion also uses it, and `useActiveNoteId` stays there because the breadcrumb and header actions use it.
+
+The tags and starred stores still use browser storage and retain the existing account and logout behavior. The migration is in [`shared/lib/migrate-note-meta.ts`](../shared/lib/migrate-note-meta.ts).
 
 ## 2. Feature 1: the title is its own field
 
@@ -158,7 +161,7 @@ BlockNote body
 A small store holds the one node being named:
 
 ```ts
-// features/nodes/store/explorer.store.ts
+// features/explorer/store/explorer.store.ts
 pendingNode: { type: "note" | "folder"; parentId: string | null } | null
 startCreating(type, parentId)
 stopCreating()
@@ -205,11 +208,11 @@ Two Radix behaviours caused it:
 
 | File | Status | What and why |
 | --- | --- | --- |
-| [`features/nodes/store/explorer.store.ts`](../features/nodes/store/explorer.store.ts) | Created | Holds `pendingNode`. A store rather than props, so any `FolderItem` at any depth can show the field without threading props through the tree. |
-| [`features/nodes/components/NewNodeInput.tsx`](../features/nodes/components/NewNodeInput.tsx) | Created | The inline name field: placeholder, Enter/blur/Escape handling, creating the folder or note, and opening the new note. |
-| [`features/nodes/components/Explorer.tsx`](../features/nodes/components/Explorer.tsx) | Changed | New Note / New Folder now call `startCreating(type, null)` instead of creating an "Untitled" node straight away. Renders the root name field. The `useRouter`, `addNote` and `addFolder` usage moved into `NewNodeInput`. |
-| [`features/nodes/components/FolderItem.tsx`](../features/nodes/components/FolderItem.tsx) | Changed | The folder menu's New Note / New Folder, which were empty stubs, now call `startCreating(type, folder.id)`. Opens the folder while its field is pending and renders the field after its children. |
-| [`features/nodes/components/ExplorerContextMenu.tsx`](../features/nodes/components/ExplorerContextMenu.tsx) | Changed | Defers create actions to `onCloseAutoFocus`, as explained above. |
+| [`features/explorer/store/explorer.store.ts`](../features/explorer/store/explorer.store.ts) | Created | Holds `pendingNode`. A store rather than props, so any `FolderItem` at any depth can show the field without threading props through the tree. |
+| [`features/explorer/components/NewNodeInput.tsx`](../features/explorer/components/NewNodeInput.tsx) | Created | The inline name field: placeholder, Enter/blur/Escape handling, creating the folder or note, and opening the new note. |
+| [`features/explorer/components/Explorer.tsx`](../features/explorer/components/Explorer.tsx) | Changed | New Note / New Folder now call `startCreating(type, null)` instead of creating an "Untitled" node straight away. Renders the root name field. The `useRouter`, `addNote` and `addFolder` usage moved into `NewNodeInput`. |
+| [`features/explorer/components/FolderItem.tsx`](../features/explorer/components/FolderItem.tsx) | Changed | The folder menu's New Note / New Folder, which were empty stubs, now call `startCreating(type, folder.id)`. Opens the folder while its field is pending and renders the field after its children. |
+| [`features/explorer/components/ExplorerContextMenu.tsx`](../features/explorer/components/ExplorerContextMenu.tsx) | Changed | Defers create actions to `onCloseAutoFocus`, as explained above. |
 | [`features/nodes/utils/untitled-name.ts`](../features/nodes/utils/untitled-name.ts) | Created | `nextUntitledName`: the counter rules above. |
 | [`features/nodes/utils/untitled-name.test.ts`](../features/nodes/utils/untitled-name.test.ts) | Created | Unit tests for those rules. |
 | [`features/nodes/utils/create-empty-folder.ts`](../features/nodes/utils/create-empty-folder.ts) | Changed | Now `createEmptyFolder(name, parentId)`, instead of always "Untitled Folder" at the root. |
@@ -449,10 +452,10 @@ Status is relative to the state before this work. Some files marked "Changed" we
 | `docs/note-features.html` | Created | — | Offline visual version of this document, generated from it |
 | `features/nodes/components/Editor.tsx` | Changed | 1 | Title field, `getTitle`, `meta` slot, empty-content guard |
 | `features/nodes/components/EditorWrapper.tsx` | Changed | 1 | Forwards `meta` |
-| `features/nodes/components/Explorer.tsx` | Changed | 2 | Root create → inline field |
-| `features/nodes/components/ExplorerContextMenu.tsx` | Changed | 2 | Create actions run after the menu closes |
-| `features/nodes/components/FolderItem.tsx` | Changed | 2 | Create inside a folder; opens for the field |
-| `features/nodes/components/NewNodeInput.tsx` | Created | 2 | Inline name field |
+| `features/explorer/components/Explorer.tsx` | Changed | 2 | Root create → inline field |
+| `features/explorer/components/ExplorerContextMenu.tsx` | Changed | 2 | Create actions run after the menu closes |
+| `features/explorer/components/FolderItem.tsx` | Changed | 2 | Create inside a folder; opens for the field |
+| `features/explorer/components/NewNodeInput.tsx` | Created | 2 | Inline name field |
 | `features/nodes/components/NodeStoreInitializer.tsx` | Changed | 3 | Initializes only notes and folders |
 | `shared/components/layout/NoteActions.tsx` | Created | 3 | Header star for the open note |
 | `features/nodes/components/NoteCard.tsx` | Created | 4 | Card for the list pages |
@@ -466,7 +469,7 @@ Status is relative to the state before this work. Some files marked "Changed" we
 | `features/nodes/hooks/use-note-draft.ts` | Changed | 1 | Draft title from `getTitle` |
 | `features/nodes/hooks/use-note-server-save.ts` | Changed | 1 | Saved title from `getTitle`; blank not saved |
 | `features/nodes/index.ts` | Changed | 3, 4 | New exports |
-| `features/nodes/store/explorer.store.ts` | Created | 2 | Pending inline create |
+| `features/explorer/store/explorer.store.ts` | Created | 2 | Pending inline create |
 | `features/tags/store/tags.store.ts` | Created | 3 | Tags store |
 | `features/tags/store/tags.store.test.ts` | Created | 3 | Store tests |
 | `features/tags/types/index.ts` | Changed | 3 | `Tag`, `TagColor` |
