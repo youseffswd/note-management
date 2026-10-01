@@ -34,7 +34,7 @@ export const useNodeStore = create<NodeStore>()(
                     (a, b) =>
                         new Date(a.createdAt).getTime() -
                         new Date(b.createdAt).getTime(),
-                );
+                ).sort((a,b) => Number(b.type === "folder") - Number(a.type === "folder"))
                 const nodesHash = allNodes.reduce(
                     (acc, node) => {
                         acc[node.id] = node;
