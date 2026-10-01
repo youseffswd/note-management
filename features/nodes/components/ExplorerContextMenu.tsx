@@ -62,6 +62,10 @@ type ExplorerContextMenuProps = { children: ReactNode } & (
  */
 export default function ExplorerContextMenu(props: ExplorerContextMenuProps) {
     const touchStartRef = useRef<{ x: number; y: number } | null>(null);
+    // Creating opens an inline name field, which needs focus. The menu still
+    // traps focus when onSelect runs, and hands it back to its trigger once
+    // closed, so the action waits until the menu has closed and skips that.
+    const pendingCreateRef = useRef<ExplorerAction | null>(null);
     const nodeId = useRef<string | null>(null)
     const handlePointerDown = (event: PointerEvent<HTMLElement>) => {
         const id = event.currentTarget.dataset.id
@@ -97,6 +101,18 @@ export default function ExplorerContextMenu(props: ExplorerContextMenuProps) {
         touchStartRef.current = null;
     };
 
+    const selectCreate = (action: ExplorerAction) => () => {
+        pendingCreateRef.current = action;
+    };
+
+    const handleCloseAutoFocus = (event: Event) => {
+        const action = pendingCreateRef.current;
+        if (!action) return;
+        pendingCreateRef.current = null;
+        event.preventDefault();
+        action();
+    };
+
     return (
         <ContextMenu>
             <ContextMenuTrigger
@@ -108,14 +124,17 @@ export default function ExplorerContextMenu(props: ExplorerContextMenuProps) {
             >
                 {props.children}
             </ContextMenuTrigger>
-            <ContextMenuContent className="w-48">
+            <ContextMenuContent
+                className="w-48"
+                onCloseAutoFocus={handleCloseAutoFocus}
+            >
                 {props.target !== "note" && (
                     <>
-                        <ContextMenuItem onSelect={props.onCreateNote}>
+                        <ContextMenuItem onSelect={selectCreate(props.onCreateNote)}>
                             <FilePlus />
                             New Note
                         </ContextMenuItem>
-                        <ContextMenuItem onSelect={props.onCreateFolder}>
+                        <ContextMenuItem onSelect={selectCreate(props.onCreateFolder)}>
                             <FolderPlus />
                             New Folder
                         </ContextMenuItem>

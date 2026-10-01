@@ -1,27 +1,26 @@
 "use client";
 
 import { useMemo, useState } from "react";
-import { useRouter } from "next/navigation";
 import { useDebounceCallback } from "usehooks-ts";
 
 import { SidebarHeader } from "@/shared/components/ui/sidebar";
 import { useNodeStore } from "../store/nodes.store";
+import { useExplorerStore } from "../store/explorer.store";
 import type { Note } from "../types";
 import { buildTree } from "../utils/tree-build";
-import { createEmptyNote } from "../utils/create-empty-note";
-import { createEmptyFolder } from "../utils/create-empty-folder";
 import ExplorerActions from "./ExplorerActions";
 import ExplorerContextMenu from "./ExplorerContextMenu";
 import ExplorerSearch from "./ExplorerSearch";
 import FolderItem from "./FolderItem";
+import NewNodeInput from "./NewNodeInput";
 import NoteItem from "./NoteItem";
 
 const Explorer = () => {
-    const router = useRouter();
-
     const nodesHash = useNodeStore(state => state.nodesHash);
-    const addNote = useNodeStore(state => state.addNote);
-    const addFolder = useNodeStore(state => state.addFolder);
+    const startCreating = useExplorerStore(state => state.startCreating);
+    const pendingRootType = useExplorerStore(state =>
+        state.pendingNode?.parentId === null ? state.pendingNode.type : null,
+    );
 
     const [searchQuery, setSearchQuery] = useState("");
     const debouncedSetSearchQuery = useDebounceCallback(setSearchQuery, 300);
@@ -41,15 +40,9 @@ const Explorer = () => {
     const visibleNodes = searchResults ?? rootNodes;
     const hasNoSearchResults = searchResults !== null && searchResults.length === 0;
 
-    const handleCreateNote = async () => {
-        const newNote = createEmptyNote();
-        await addNote(newNote);
-        router.push(`/dashboard/notes/${newNote.id}`);
-    };
+    const handleCreateNote = () => startCreating("note", null);
 
-    const handleCreateFolder = async () => {
-        await addFolder(createEmptyFolder());
-    };
+    const handleCreateFolder = () => startCreating("folder", null);
 
     return (
         <>
@@ -83,6 +76,14 @@ const Explorer = () => {
                                 <NoteItem key={node.id} note={node} />
                             ),
                         )
+                    )}
+                    {/* Last, where the new node will appear once created. */}
+                    {pendingRootType && (
+                        <NewNodeInput
+                            key={pendingRootType}
+                            type={pendingRootType}
+                            parentId={null}
+                        />
                     )}
                 </div>
             </ExplorerContextMenu>

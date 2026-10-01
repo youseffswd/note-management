@@ -9,9 +9,11 @@ import {
 import { ChevronRightIcon, FolderIcon } from "lucide-react";
 import { useState } from "react";
 import NoteItem from "./NoteItem";
+import NewNodeInput from "./NewNodeInput";
 import ExplorerContextMenu from "./ExplorerContextMenu";
 import type { Folder } from "../types";
 import { useNodeStore } from "../store/nodes.store";
+import { useExplorerStore } from "../store/explorer.store";
 import { useActiveNoteId } from "../hooks/use-active-note-id";
 import { folderColorClass } from "../utils/folder-colors";
 import { isAncestorOf } from "../utils/folder-path";
@@ -22,6 +24,12 @@ interface FolderItemProps {
 
 export default function FolderItem({ folder }: FolderItemProps) {
     const removeFolder = useNodeStore(state => state.removeFolder);
+    const startCreating = useExplorerStore(state => state.startCreating);
+    const pendingType = useExplorerStore(state =>
+        state.pendingNode?.parentId === folder.id
+            ? state.pendingNode.type
+            : null,
+    );
     const activeNoteId = useActiveNoteId();
     const containsActiveNote = useNodeStore(state =>
         activeNoteId
@@ -39,10 +47,12 @@ export default function FolderItem({ folder }: FolderItemProps) {
         setPrevContainsActiveNote(containsActiveNote);
         if (containsActiveNote) setOpen(true);
     }
+    // The name field for a new child is inside, so it must be visible.
+    if (pendingType && !open) setOpen(true);
 
-    const handleCreateNote = () => {};
+    const handleCreateNote = () => startCreating("note", folder.id);
 
-    const handleCreateFolder = () => {};
+    const handleCreateFolder = () => startCreating("folder", folder.id);
 
     const handleRename = () => {};
 
@@ -91,6 +101,13 @@ export default function FolderItem({ folder }: FolderItemProps) {
                         ) : (
                             <NoteItem key={child.id} note={child} />
                         ),
+                    )}
+                    {pendingType && (
+                        <NewNodeInput
+                            key={pendingType}
+                            type={pendingType}
+                            parentId={folder.id}
+                        />
                     )}
                 </div>
             </CollapsibleContent>
