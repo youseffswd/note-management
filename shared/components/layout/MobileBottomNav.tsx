@@ -5,18 +5,19 @@ import { usePathname } from "next/navigation";
 import { LogOutIcon } from "lucide-react";
 
 import LogOutButton from "./LogOutButton";
-import { navItems } from "./nav-items";
+import { isNavItemActive, navItems } from "./nav-items";
 
 export function MobileBottomNav() {
     const pathname = usePathname();
     return (
-        <nav className="fixed bottom-0 left-0 right-0 h-16 bg-sidebar border-t border-border flex items-center justify-around px-4 pb-safe z-50">
+        <nav aria-label="Main navigation" className="relative z-50 flex h-[calc(4rem+env(safe-area-inset-bottom))] items-center justify-around border-t border-border bg-sidebar px-2 pb-[env(safe-area-inset-bottom)]">
             {navItems.map((item) => {
-                const isActive = pathname === item.href;
+                const isActive = isNavItemActive(pathname, item.href);
                 return (
                     <Link
                         key={item.href}
                         href={item.href}
+                        aria-current={isActive ? "page" : undefined}
                         className={`flex flex-col items-center justify-center w-16 h-full transition-colors ${
                             isActive ? "text-primary" : "text-muted-foreground hover:text-foreground"
                         }`}

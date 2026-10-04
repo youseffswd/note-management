@@ -80,7 +80,7 @@ sequenceDiagram
     participant E as Editor
 
     L->>L: getFolders() + getNotes() (once per full page load)
-    L->>I: folders, notes (through AppLayout)
+    L->>I: folders, notes (from ProtectedLayout)
     I->>S: initilizeNoteStore(folders, notes) in an effect
     S->>S: nodesHash filled, initialized = true
     Note over A: AuthProvider fills the user from getSession()
@@ -99,7 +99,7 @@ sequenceDiagram
 
 Key points:
 
-- **The store is filled once, by a component that is always mounted.** `NodeStoreInitializer` renders nothing; it lives in `AppLayout`, which never unmounts, so the mobile sheet no longer matters. The layout's props only change on a full load or a server refresh (for example `router.refresh()`), and then the store is replaced with fresh server data.
+- **The store is filled once, by a component that is always mounted.** `NodeStoreInitializer` renders nothing; it lives in `ProtectedLayout`, which stays mounted when switching between the standalone dashboard and the workspace, so the mobile sheet no longer matters. The layout's props only change on a full load or a server refresh (for example `router.refresh()`), and then the store is replaced with fresh server data.
 - **The store is only ever filled in the browser.** A zustand store is a module-level object. On the server it would be shared by every request, so filling it during server rendering could leak one user's notes into another user's page. Filling it in an effect guarantees it only happens in the browser. During server rendering `NoteView` shows the loader; the editor is browser-only (`ssr: false`) anyway.
 - **The `initialized` flag separates "not loaded yet" from "does not exist".** An empty `nodesHash` alone cannot tell the two apart; without the flag, a reload would briefly show "Note not found".
 - **The page waits for the user id.** Local drafts are stored per user (`note-draft:v1:<userId>:<noteId>`), and the editor reads the draft on its very first render. The old page got the id from the server. It now comes from the client auth store, which `AuthProvider` fills asynchronously, so `NoteView` shows the loader until it is there. This reads the session from the browser; no server call is needed.
@@ -147,10 +147,11 @@ flowchart TD
 
 | File | Change | Why |
 | --- | --- | --- |
-| [page.tsx](../app/%28protected%29/dashboard/notes/%5Bnote%5D/page.tsx) (note page) | Only awaits `params` and renders `NoteView`. Removed `getNote`, `getUser`, and the `Suspense` fallback. | Nothing on this page loads data anymore. `params` is a promise in this Next.js version, as before. |
+| [page.tsx](../app/%28protected%29/dashboard/%28workspace%29/notes/%5Bnote%5D/page.tsx) (note page) | Only awaits `params` and renders `NoteView`. Removed `getNote`, `getUser`, and the `Suspense` fallback. | Nothing on this page loads data anymore. `params` is a promise in this Next.js version, as before. |
 | [nodes.store.ts](../features/nodes/store/nodes.store.ts) | Added `initialized` (set by `initilizeNoteStore`). Removed `ensureNode`. Updated the `deletedIds` comment. | See [A3](#a3-how-opening-a-note-works-now). `ensureNode` is no longer needed because the editor only mounts once the note is already in the store. |
 | [use-note-server-save.ts](../features/nodes/hooks/use-note-server-save.ts) | Removed the `ensureNode` call and the `noteRef` that only existed to feed it. | Same reason. |
-| [AppLayout.tsx](../shared/components/layout/AppLayout.tsx) | Renders `<NodeStoreInitializer folders notes />`; no longer passes the data to `AppSidebar`. | `AppLayout` is always mounted. |
+| [Protected layout](../app/%28protected%29/layout.tsx) | Renders `<NodeStoreInitializer folders notes />` and initializes stars and tags above both page layouts. | Dashboard/workspace navigation preserves the stores. |
+| [Workspace layout](../app/%28protected%29/dashboard/%28workspace%29/layout.tsx) | Wraps notes, tags, starred notes, and settings in `AppLayout`. The dashboard is outside this group. | Only child sections mount the sidebar and left rail; URLs stay the same. |
 | [AppSidebar.tsx](../shared/components/layout/AppSidebar.tsx) | No longer takes `folders` and `notes`. | It only passed them to `Explorer`. |
 | [Explorer.tsx](../features/explorer/components/Explorer.tsx) | No longer takes props or fills the store; it only reads from it. | Moved to `NodeStoreInitializer`. |
 | [nodes.service.ts](../features/nodes/api/nodes.service.ts), [server.ts](../features/nodes/server.ts) | Removed `getNote`. | No remaining callers. |

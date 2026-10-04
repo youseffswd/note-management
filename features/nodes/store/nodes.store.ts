@@ -36,13 +36,12 @@ export const useNodeStore = create<NodeStore>()(
                         new Date(b.createdAt).getTime(),
                 ).sort((a,b) => Number(b.type === "folder") - Number(a.type === "folder"))
                 const nodesHash = allNodes.reduce(
-                    (acc, node) => {
-                        acc[node.id] = node;
-                        return acc;
-                    },
-                    {} as Record<string, Node>,
+                  (acc, node) => {
+                    acc[node.id] = node;
+                    return acc;
+                  },
+                  {} as Record<string, Node>,
                 ); // building hash
-
                 set({ nodesHash, initialized: true });
             },
             addNote: async (note: Note) => {

@@ -12,7 +12,7 @@ import {
     TooltipTrigger,
 } from "@/shared/components/ui/tooltip";
 import LogOutButton from "./LogOutButton";
-import { navItems } from "./nav-items";
+import { isNavItemActive, navItems } from "./nav-items";
 
 const railButtonClass = "p-3 rounded-md transition-colors";
 
@@ -33,9 +33,9 @@ export default function LeftRail() {
     return (
         <TooltipProvider delayDuration={100}>
             <div className="hidden lg:flex relative z-50 w-14 flex-col items-center py-4 border-r border-border bg-sidebar shrink-0">
-                <nav className="flex-1 flex flex-col gap-1">
+                <nav aria-label="Main navigation" className="flex-1 flex flex-col gap-1">
                     {navItems.map(item => {
-                        const isActive = pathname === item.href;
+                        const isActive = isNavItemActive(pathname, item.href);
                         return (
                             <RailTooltip key={item.href} content={item.tooltip ?? item.label}>
                                 <Link

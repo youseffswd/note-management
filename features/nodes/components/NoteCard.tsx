@@ -6,6 +6,7 @@ import type { ReactNode } from "react";
 import { FolderIcon } from "lucide-react";
 
 import { formatRelativeTime } from "@/shared/lib/relative-time";
+import { cn } from "@/shared/lib/utils";
 import { useNodeStore } from "../store/nodes.store";
 import type { Note } from "../types";
 import { notePreview } from "../utils/note-preview";
@@ -14,9 +15,10 @@ interface NoteCardProps {
     note: Note;
     actions?: ReactNode;
     metadata?: ReactNode;
+    className?: string;
 }
 
-export default function NoteCard({ note, actions, metadata }: NoteCardProps) {
+export default function NoteCard({ note, actions, metadata, className }: NoteCardProps) {
     const folderName = useNodeStore(state => {
         const parent = note.parentId ? state.nodesHash[note.parentId] : undefined;
         return parent?.type === "folder" ? parent.name : null;
@@ -24,9 +26,9 @@ export default function NoteCard({ note, actions, metadata }: NoteCardProps) {
     const preview = useMemo(() => notePreview(note.content), [note.content]);
 
     return (
-        <article className="relative rounded-lg border border-border bg-card px-4 py-3.5 transition-colors hover:border-muted-foreground/30 hover:bg-secondary has-focus-visible:border-ring">
+        <article className={cn("relative min-w-0 rounded-lg border border-border bg-card px-4 py-3.5 transition-colors hover:border-muted-foreground/30 hover:bg-secondary has-focus-visible:border-ring", className)}>
             <div className="mb-1.5 flex items-start justify-between gap-2.5">
-                <h3 className="text-sm font-semibold text-foreground">
+                <h3 className="min-w-0 wrap-anywhere text-sm font-semibold text-foreground">
                     {/* Stretched over the whole card, so the card is the link. */}
                     <Link
                         href={`/dashboard/notes/${note.id}`}
@@ -41,7 +43,7 @@ export default function NoteCard({ note, actions, metadata }: NoteCardProps) {
                     </div>
                 )}
             </div>
-            <p className="mb-2.5 line-clamp-2 text-[13px] leading-relaxed text-muted-foreground">
+            <p className="mb-2.5 line-clamp-2 wrap-anywhere text-[13px] leading-relaxed text-muted-foreground">
                 {preview || <span className="italic opacity-70">Empty note</span>}
             </p>
             <div className="flex flex-wrap items-center gap-2.5 text-[11px] text-muted-foreground">
@@ -56,8 +58,6 @@ export default function NoteCard({ note, actions, metadata }: NoteCardProps) {
                     {formatRelativeTime(note.updatedAt ?? note.createdAt)}
                 </span>
             </div>
-
-            tsdklfasdnklfaklsdf;knasdfnasdfkl;asd;nklfkasndfk;nlasdknfaskndfas;ldf;kasfasn;df
         </article>
     );
 }

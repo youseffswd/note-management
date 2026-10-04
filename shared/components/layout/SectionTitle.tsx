@@ -1,7 +1,7 @@
 "use client";
 
 import { usePathname } from "next/navigation";
-import { StarIcon, TagIcon, type LucideIcon } from "lucide-react";
+import { FileIcon, LayoutDashboardIcon, SettingsIcon, StarIcon, TagIcon, type LucideIcon } from "lucide-react";
 
 interface Section {
     icon: LucideIcon;
@@ -10,6 +10,16 @@ interface Section {
 }
 
 const sections: Record<string, Section> = {
+    "/dashboard": {
+        icon: LayoutDashboardIcon,
+        label: "Dashboard",
+        iconClassName: "text-primary",
+    },
+    "/dashboard/notes": {
+        icon: FileIcon,
+        label: "Notes",
+        iconClassName: "text-primary",
+    },
     "/dashboard/starred": {
         icon: StarIcon,
         label: "Starred Notes",
@@ -19,6 +29,11 @@ const sections: Record<string, Section> = {
         icon: TagIcon,
         label: "Tags",
         iconClassName: "text-primary",
+    },
+    "/dashboard/settings": {
+        icon: SettingsIcon,
+        label: "Settings",
+        iconClassName: "text-muted-foreground",
     },
 };
 
