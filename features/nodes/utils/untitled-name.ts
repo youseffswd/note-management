@@ -33,6 +33,6 @@ export function nextUntitledName(
 
     if (!taken.has(base.toLowerCase())) return base;
     let counter = 2;
-    while (taken.has(`${base} ${counter}`.toLowerCase())) counter++;
-    return `${base} ${counter}`;
+    while (taken.has(`${base} (${counter})`.toLowerCase())) counter++;
+    return `${base} (${counter})`;
 }
