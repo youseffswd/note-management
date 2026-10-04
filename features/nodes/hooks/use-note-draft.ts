@@ -55,9 +55,10 @@ export function useNoteDraft({
         const timer = setTimeout(() => setRecovered(false), 4000);
         return () => clearTimeout(timer);
     }, [recovered]);
-
+    const lastSavedRev = useRef(0)
     const writeDraftNow = useCallback(
         (content: PartialBlock[]) => {
+          if(revRef.current <= lastSavedRev.current) return;
             writeDraft({
                 noteId: note.id,
                 userId,
@@ -66,6 +67,7 @@ export function useNoteDraft({
                 baseUpdatedAt: baselineRef.current,
                 rev: revRef.current,
             });
+            lastSavedRev.current = revRef.current
         },
         [note.id, userId, getTitle],
     );
