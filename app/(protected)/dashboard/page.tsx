@@ -1,6 +1,11 @@
-import { redirect } from "next/navigation";
+import type { Metadata } from "next";
 
+import { DashboardView } from "@/features/dashboard";
 
-export default function Home() {
-  return redirect("/dashboard/notes");
+export const metadata: Metadata = {
+    title: "Dashboard | NoteFlow",
+};
+
+export default function DashboardPage() {
+    return <DashboardView />;
 }

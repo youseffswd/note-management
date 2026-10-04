@@ -510,7 +510,7 @@ These details explain why some paths do not reach the completely clean endpoint 
 
 | File | Relevant part of the flow |
 | --- | --- |
-| [Note page](../app/%28protected%29/dashboard/notes/%5Bnote%5D/page.tsx) and [NoteView.tsx](../features/nodes/components/NoteView.tsx) | Reads the note from the store; loader, not-found, and deleted states. |
+| [Note page](../app/%28protected%29/dashboard/%28workspace%29/notes/%5Bnote%5D/page.tsx) and [NoteView.tsx](../features/nodes/components/NoteView.tsx) | Reads the note from the store; loader, not-found, and deleted states. |
 | [EditorWrapper.tsx](../features/nodes/components/EditorWrapper.tsx) | Browser-only dynamic editor mount. |
 | [Editor.tsx](../features/nodes/components/Editor.tsx) | Initial resolution, hook order, change handler, restore/flush wiring, and indicators. |
 | [use-note-draft.ts](../features/nodes/hooks/use-note-draft.ts) | Local debounce, revision, baseline, recovery, conflict handlers, and lifecycle flushes. |
