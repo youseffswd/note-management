@@ -95,7 +95,12 @@ export default function FolderItem({ folder }: FolderItemProps) {
                     </CollapsibleTrigger>
                 </div>
             </ExplorerContextMenu>
-            <CollapsibleContent className="mt-1 ml-5 style-lyra:ml-4">
+            {/* forceMount keeps nested folders mounted while closed, so a
+                manually closed child isn't re-opened when this folder reopens */}
+            <CollapsibleContent
+                forceMount
+                className="mt-1 ml-5 style-lyra:ml-4 data-[state=closed]:hidden"
+            >
                 <div className="flex flex-col gap-1">
                     {folder.children.map(child =>
                         child.type === "folder" ? (
