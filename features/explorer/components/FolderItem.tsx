@@ -9,7 +9,7 @@ import {
 import { ChevronRightIcon, FolderIcon } from "lucide-react";
 import { useState } from "react";
 import NoteItem from "./NoteItem";
-import NewNodeInput from "./NewNodeInput";
+import NodeInput from "./NodeInput";
 import ExplorerContextMenu from "./ExplorerContextMenu";
 import {
     folderColorClass,
@@ -27,6 +27,8 @@ interface FolderItemProps {
 export default function FolderItem({ folder }: FolderItemProps) {
     const removeFolder = useNodeStore(state => state.removeFolder);
     const startCreating = useExplorerStore(state => state.startCreating);
+    const startRenaming = useExplorerStore(state => state.startRenaming);
+    const isRenaming = useExplorerStore(state => state.renamingId === folder.id);
     const pendingType = useExplorerStore(state =>
         state.pendingNode?.parentId === folder.id
             ? state.pendingNode.type
@@ -56,7 +58,7 @@ export default function FolderItem({ folder }: FolderItemProps) {
 
     const handleCreateFolder = () => startCreating("folder", folder.id);
 
-    const handleRename = () => {};
+    const handleRename = () => startRenaming(folder.id);
 
     const handleDelete = async () => {
         try {
@@ -77,22 +79,26 @@ export default function FolderItem({ folder }: FolderItemProps) {
             >
                 {/* Wrapper keeps the menu's data-state off the collapsible trigger */}
                 <div className="rounded-md data-[state=open]:bg-accent">
-                    <CollapsibleTrigger asChild>
-                        <Button
-                            variant="ghost"
-                            size="sm"
-                            className="group w-full justify-start transition hover:bg-accent! hover:text-accent-foreground"
-                        >
-                            <ChevronRightIcon className="transition-transform group-data-[state=open]:rotate-90" />
-                            <FolderIcon
-                                className={`${folderColorClass(folder.colorClass)} fill-current`}
-                            />
-                            {folder.name}
-                            <span className="ml-auto text-xs">
-                                {folder.children.length}
-                            </span>
-                        </Button>
-                    </CollapsibleTrigger>
+                    {isRenaming ? (
+                        <NodeInput mode="rename" node={folder} />
+                    ) : (
+                        <CollapsibleTrigger asChild>
+                            <Button
+                                variant="ghost"
+                                size="sm"
+                                className="group w-full justify-start transition hover:bg-accent! hover:text-accent-foreground"
+                            >
+                                <ChevronRightIcon className="transition-transform group-data-[state=open]:rotate-90" />
+                                <FolderIcon
+                                    className={`${folderColorClass(folder.colorClass)} fill-current`}
+                                />
+                                {folder.name}
+                                <span className="ml-auto text-xs">
+                                    {folder.children.length}
+                                </span>
+                            </Button>
+                        </CollapsibleTrigger>
+                    )}
                 </div>
             </ExplorerContextMenu>
             {/* forceMount keeps nested folders mounted while closed, so a
@@ -110,8 +116,9 @@ export default function FolderItem({ folder }: FolderItemProps) {
                         ),
                     )}
                     {pendingType && (
-                        <NewNodeInput
+                        <NodeInput
                             key={pendingType}
+                            mode="create"
                             type={pendingType}
                             parentId={folder.id}
                         />

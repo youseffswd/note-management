@@ -7,6 +7,8 @@ import { useRouter } from "next/navigation";
 import { useEffect, useRef } from "react";
 import ExplorerContextMenu from "./ExplorerContextMenu";
 import { useActiveNoteId, useNodeStore } from "@/features/nodes";
+import { useExplorerStore } from "../store/explorer.store";
+import NodeInput from "./NodeInput";
 
 interface NoteItemProps {
     note: Note;
@@ -14,6 +16,8 @@ interface NoteItemProps {
 
 export default function NoteItem({ note }: NoteItemProps) {
     const removeNote = useNodeStore(state => state.removeNote);
+    const startRenaming = useExplorerStore(state => state.startRenaming);
+    const isRenaming = useExplorerStore(state => state.renamingId === note.id);
     const activeNoteId = useActiveNoteId();
     const isActive = activeNoteId === note.id;
     const router = useRouter();
@@ -24,7 +28,7 @@ export default function NoteItem({ note }: NoteItemProps) {
         if (isActive) buttonRef.current?.scrollIntoView({ block: "nearest" });
     }, [isActive]);
 
-    const handleRename = () => {};
+    const handleRename = () => startRenaming(note.id);
 
     const handleDuplicate = () => {};
 
@@ -45,17 +49,21 @@ export default function NoteItem({ note }: NoteItemProps) {
             onDuplicate={handleDuplicate}
             onDelete={handleDelete}
         >
-            <Button
-                ref={buttonRef}
-                variant="link"
-                aria-current={isActive ? "page" : undefined}
-                onClick={() => router.push(`/dashboard/notes/${note.id}`)}
-                size="sm"
-                className="w-full items-center justify-start gap-2 text-sidebar-foreground transition hover:bg-accent! hover:text-accent-foreground hover:no-underline data-[state=open]:bg-accent aria-[current=page]:bg-accent aria-[current=page]:font-medium aria-[current=page]:text-accent-foreground"
-            >
-                <FileIcon className="text-amber-500 mb-px" />
-                <span>{note.title}</span>
-            </Button>
+            {isRenaming ? (
+                <NodeInput mode="rename" node={note} />
+            ) : (
+                <Button
+                    ref={buttonRef}
+                    variant="link"
+                    aria-current={isActive ? "page" : undefined}
+                    onClick={() => router.push(`/dashboard/notes/${note.id}`)}
+                    size="sm"
+                    className="w-full items-center justify-start gap-2 text-sidebar-foreground transition hover:bg-accent! hover:text-accent-foreground hover:no-underline data-[state=open]:bg-accent aria-[current=page]:bg-accent aria-[current=page]:font-medium aria-[current=page]:text-accent-foreground"
+                >
+                    <FileIcon className="text-amber-500 mb-px" />
+                    <span>{note.title}</span>
+                </Button>
+            )}
         </ExplorerContextMenu>
     );
 }

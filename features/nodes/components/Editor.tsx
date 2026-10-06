@@ -6,7 +6,7 @@ import "@blocknote/shadcn/style.css";
 import type { PartialBlock } from "@blocknote/core";
 import { useCreateBlockNote } from "@blocknote/react";
 import { BlockNoteView } from "@blocknote/shadcn";
-import { useCallback, useRef, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import type { ChangeEvent, KeyboardEvent, ReactNode } from "react";
 import { Loader2, Check, CloudOff, History } from "lucide-react";
 import type { Note } from "../types";
@@ -56,6 +56,19 @@ export default function Editor({ className, note, userId, meta }: EditorProps) {
         titleRef.current = value;
         setTitle(value);
     }, []);
+
+    // Adopts a title changed outside the editor, e.g. renamed in the explorer.
+    // The editor's own saves store what the field already holds, so they match.
+    const [prevNoteTitle, setPrevNoteTitle] = useState(note.title);
+    if (note.title !== prevNoteTitle) {
+        setPrevNoteTitle(note.title);
+        if (note.title !== title.trim()) setTitle(note.title);
+    }
+    // The autosave hooks read the title through the ref, so it must follow
+    // the state when the title is adopted above rather than typed.
+    useEffect(() => {
+        titleRef.current = title;
+    }, [title]);
 
     // Declared before the server save so its unmount flush runs first.
     const {

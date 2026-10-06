@@ -62,9 +62,10 @@ type ExplorerContextMenuProps = { children: ReactNode } & (
  */
 export default function ExplorerContextMenu(props: ExplorerContextMenuProps) {
     const touchStartRef = useRef<{ x: number; y: number } | null>(null);
-    // Creating opens an inline name field, which needs focus. The menu still
-    // traps focus when onSelect runs, and hands it back to its trigger once
-    // closed, so the action waits until the menu has closed and skips that.
+    // Creating or renaming opens an inline name field, which needs focus. The
+    // menu still traps focus when onSelect runs, and hands it back to its
+    // trigger once closed, so the action waits until the menu has closed and
+    // skips that.
     const pendingCreateRef = useRef<ExplorerAction | null>(null);
     const nodeId = useRef<string | null>(null)
     const handlePointerDown = (event: PointerEvent<HTMLElement>) => {
@@ -144,7 +145,7 @@ export default function ExplorerContextMenu(props: ExplorerContextMenuProps) {
                 {props.target !== "blank" && (
                     <>
                         {props.target === "folder" && <ContextMenuSeparator />}
-                        <ContextMenuItem onSelect={props.onRename}>
+                        <ContextMenuItem onSelect={selectCreate(props.onRename)}>
                             <Pencil />
                             Rename
                         </ContextMenuItem>

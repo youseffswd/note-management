@@ -19,7 +19,7 @@ interface NodeStore {
     removeNote: (noteId: string) => Promise<void>;
     removeFolder: (folderId: string) => Promise<void>;
     updateNote: (noteId: string, updates: Partial<Note>) => Promise<Note>;
-    updateFolder: (folder: Folder) => void;
+    updateFolder: (folder: Folder) => Promise<void>;
 }
 
 export const useNodeStore = create<NodeStore>()(
@@ -204,6 +204,49 @@ export const useNodeStore = create<NodeStore>()(
                 // Returned so callers can pick up the `updatedAt` that was
                 // actually persisted; the API echoes nothing back.
                 return updatedNote;
+            },
+            updateFolder: async (folder: Folder) => {
+                const previousFolder = get().nodesHash[folder.id];
+                if (previousFolder?.type !== "folder") {
+                    throw new Error("Folder not found");
+                }
+
+                const updatedFolder: Folder = {
+                    ...previousFolder,
+                    ...folder,
+                    id: previousFolder.id,
+                    type: "folder",
+                    updatedAt: new Date(),
+                };
+
+                set(state => {
+                    state.nodesHash[folder.id] = updatedFolder;
+                });
+
+                try {
+                    const response = await fetch(`/api/folders/${folder.id}`, {
+                        method: "PUT",
+                        headers: {
+                            "Content-Type": "application/json",
+                        },
+                        body: JSON.stringify(updatedFolder),
+                    });
+                    if (!response.ok) {
+                        throw new Error(
+                            response.status === 401
+                                ? "Session expired. Please sign in again."
+                                : "Failed to update folder",
+                        );
+                    }
+                } catch (error) {
+                    set(state => {
+                        // The folder may have been deleted while this update
+                        // was in flight; restoring it would bring it back.
+                        if (state.deletedIds[folder.id]) return;
+                        state.nodesHash[folder.id] = previousFolder;
+                    });
+                    throw error;
+                }
             },
         })),
     ),

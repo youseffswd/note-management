@@ -11,7 +11,7 @@ import ExplorerActions from "./ExplorerActions";
 import ExplorerContextMenu from "./ExplorerContextMenu";
 import ExplorerSearch from "./ExplorerSearch";
 import FolderItem from "./FolderItem";
-import NewNodeInput from "./NewNodeInput";
+import NodeInput from "./NodeInput";
 import NoteItem from "./NoteItem";
 
 const Explorer = () => {
@@ -78,8 +78,9 @@ const Explorer = () => {
                     )}
                     {/* Last, where the new node will appear once created. */}
                     {pendingRootType && (
-                        <NewNodeInput
+                        <NodeInput
                             key={pendingRootType}
+                            mode="create"
                             type={pendingRootType}
                             parentId={null}
                         />
