@@ -30,17 +30,32 @@ export async function updateSession(request: NextRequest) {
     }
   );
 
-  const { error } = await supabase.auth.getUser();
- 
+  const { data, error } = await supabase.auth.getUser();
+  const isLoggedIn = !error && !!data.user;
 
-  // protect routes that require authentication
   const pathname = request.nextUrl.pathname;
-  const protectedRoutes = ["/dashboard"];
-  const isProtected = protectedRoutes.some((route) => pathname.startsWith(route));
+  const matches = (routes: string[]) =>
+    routes.some((route) => pathname.startsWith(route));
 
-  if(isProtected && error) {
-    return NextResponse.redirect(new URL("/login", request.url));
+  // routes that require authentication (covers /dashboard/notes, etc.)
+  const protectedRoutes = ["/dashboard"];
+  // routes only for logged-out users
+  const authRoutes = ["/login", "/sign-up"];
+
+  const redirectTo = (path: string) => {
+    const response = NextResponse.redirect(new URL(path, request.url));
+    // keep refreshed session cookies on the redirect
+    supabaseResponse.cookies.getAll().forEach((cookie) => response.cookies.set(cookie));
+    return response;
+  };
+
+  if (matches(protectedRoutes) && !isLoggedIn) {
+    return redirectTo("/login");
   }
-  
+
+  if (matches(authRoutes) && isLoggedIn) {
+    return redirectTo("/dashboard");
+  }
+
   return supabaseResponse;
 }
