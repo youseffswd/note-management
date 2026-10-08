@@ -10,6 +10,7 @@ export interface Note {
     createdAt: Date;
     updatedAt?: Date;
     type: "note";
+    tagIds: string[];
 }
 
 export interface Folder {

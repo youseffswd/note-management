@@ -9,7 +9,7 @@ export async function getNotes(): Promise<Note[]> {
     if (!userId) throw new ResponseError("Unauthorized", 401);
     const { data, error } = await supabase
         .from("notes")
-        .select("*")
+        .select("id, title, content, folderId, createdAt, updatedAt, note_tags(tagId)")
         .eq("userId", userId);
     if (error) {
         console.error("Error fetching notes:", error);
@@ -24,6 +24,7 @@ export async function getNotes(): Promise<Note[]> {
         folderId: undefined,
         userId: undefined,
         type: "note",
+        tagIds: note.note_tags.map(tag => tag.tagId) as string[]
     }));
     return mappedNotes;
 }

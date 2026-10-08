@@ -1,10 +1,10 @@
 "use client";
 
+import { useNoteTagIds } from "../hooks/use-note-tag-ids";
 import { useTagsStore } from "../store/tags.store";
 import type { Tag } from "../types";
 import TagBadge from "./TagBadge";
 
-const NO_TAG_IDS: string[] = [];
 
 interface NoteTagBadgesProps {
     noteId: string;
@@ -13,7 +13,7 @@ interface NoteTagBadgesProps {
 
 /** Read-only tags for note cards. The picker lives in NoteTags. */
 export default function NoteTagBadges({ noteId, maxTags }: NoteTagBadgesProps) {
-    const tagIds = useTagsStore(state => state.noteTags[noteId] ?? NO_TAG_IDS);
+    const tagIds = useNoteTagIds(noteId);
     const tagsById = useTagsStore(state => state.tags);
     const tags = tagIds
         .map(id => tagsById[id])

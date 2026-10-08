@@ -20,6 +20,7 @@ const note = (id: string, parentId: string | null, title = id): Note => ({
     parentId,
     createdAt: new Date("2026-01-01"),
     type: "note",
+    tagIds: [],
 });
 
 const hashOf = (...nodes: Node[]) =>
@@ -38,22 +39,22 @@ describe("nextUntitledName", () => {
     it("counts up from 2 once the plain name is taken", () => {
         const hash = hashOf(
             note("a", null, "Untitled Note"),
-            note("b", null, "Untitled Note 2"),
+            note("b", null, "Untitled Note (2)"),
         );
 
         expect(nextUntitledName(hash, { type: "note", parentId: null })).toBe(
-            "Untitled Note 3",
+            "Untitled Note (3)",
         );
     });
 
     it("fills the first gap", () => {
         const hash = hashOf(
             folder("a", null, "Untitled Folder"),
-            folder("b", null, "Untitled Folder 3"),
+            folder("b", null, "Untitled Folder (3)"),
         );
 
         expect(nextUntitledName(hash, { type: "folder", parentId: null })).toBe(
-            "Untitled Folder 2",
+            "Untitled Folder (2)",
         );
     });
 
@@ -68,7 +69,7 @@ describe("nextUntitledName", () => {
             "Untitled Note",
         );
         expect(nextUntitledName(hash, { type: "note", parentId: "work" })).toBe(
-            "Untitled Note 2",
+            "Untitled Note (2)",
         );
     });
 
@@ -76,7 +77,7 @@ describe("nextUntitledName", () => {
         const hash = hashOf(note("a", null, "  untitled note "));
 
         expect(nextUntitledName(hash, { type: "note", parentId: null })).toBe(
-            "Untitled Note 2",
+            "Untitled Note (2)",
         );
     });
 

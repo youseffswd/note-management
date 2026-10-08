@@ -20,6 +20,11 @@ interface NodeStore {
     removeFolder: (folderId: string) => Promise<void>;
     updateNote: (noteId: string, updates: Partial<Note>) => Promise<Note>;
     updateFolder: (folder: Folder) => Promise<void>;
+    // Local only: the tags feature persists assignments through its own API,
+    // and they must not touch the note's `updatedAt`.
+    attachTag: (noteId: string, tagId: string) => void;
+    detachTag: (noteId: string, tagId: string) => void;
+    detachTagFromAllNotes: (tagId: string) => void;
 }
 
 export const useNodeStore = create<NodeStore>()(
@@ -247,6 +252,29 @@ export const useNodeStore = create<NodeStore>()(
                     });
                     throw error;
                 }
+            },
+            attachTag: (noteId: string, tagId: string) => {
+                set(state => {
+                    const node = state.nodesHash[noteId];
+                    if (node?.type !== "note") return;
+                    if (!node.tagIds.includes(tagId)) node.tagIds.push(tagId);
+                });
+            },
+            detachTag: (noteId: string, tagId: string) => {
+                set(state => {
+                    const node = state.nodesHash[noteId];
+                    if (node?.type !== "note") return;
+                    node.tagIds = node.tagIds.filter(id => id !== tagId);
+                });
+            },
+            detachTagFromAllNotes: (tagId: string) => {
+                set(state => {
+                    for (const node of Object.values(state.nodesHash)) {
+                        if (node.type !== "note") continue;
+                        if (!node.tagIds.includes(tagId)) continue;
+                        node.tagIds = node.tagIds.filter(id => id !== tagId);
+                    }
+                });
             },
         })),
     ),

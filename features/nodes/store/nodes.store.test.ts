@@ -20,6 +20,7 @@ const note = (id: string, parentId: string | null): Note => ({
     parentId,
     createdAt: new Date("2026-01-01"),
     type: "note",
+    tagIds: [],
 });
 
 const mockFetch = (ok: boolean) =>
@@ -126,5 +127,69 @@ describe("failed deletes roll back", () => {
         expect(state.nodesHash).toHaveProperty("work");
         expect(state.nodesHash).toHaveProperty("work-note");
         expect(state.deletedIds).toEqual({});
+    });
+});
+
+describe("tag assignments on notes", () => {
+    const tagIdsOf = (id: string) => {
+        const node = useNodeStore.getState().nodesHash[id];
+        return node?.type === "note" ? node.tagIds : undefined;
+    };
+
+    it("attaches a tag once without touching updatedAt", () => {
+        const { attachTag } = useNodeStore.getState();
+
+        attachTag("open-note", "t1");
+        attachTag("open-note", "t1");
+
+        expect(tagIdsOf("open-note")).toEqual(["t1"]);
+        expect(useNodeStore.getState().nodesHash["open-note"]).not.toHaveProperty(
+            "updatedAt",
+        );
+    });
+
+    it("detaches a tag from one note only", () => {
+        const { attachTag, detachTag } = useNodeStore.getState();
+        attachTag("open-note", "t1");
+        attachTag("work-note", "t1");
+
+        detachTag("open-note", "t1");
+
+        expect(tagIdsOf("open-note")).toEqual([]);
+        expect(tagIdsOf("work-note")).toEqual(["t1"]);
+    });
+
+    it("detaches a tag from every note and keeps the others", () => {
+        const { attachTag, detachTagFromAllNotes } = useNodeStore.getState();
+        attachTag("open-note", "t1");
+        attachTag("open-note", "t2");
+        attachTag("work-note", "t1");
+
+        detachTagFromAllNotes("t1");
+
+        expect(tagIdsOf("open-note")).toEqual(["t2"]);
+        expect(tagIdsOf("work-note")).toEqual([]);
+    });
+
+    it("ignores folders and unknown ids", () => {
+        const { attachTag } = useNodeStore.getState();
+
+        attachTag("work", "t1");
+        attachTag("missing", "t1");
+
+        expect(useNodeStore.getState().nodesHash.work).not.toHaveProperty(
+            "tagIds",
+        );
+        expect(useNodeStore.getState().nodesHash).not.toHaveProperty("missing");
+    });
+
+    it("keeps the tags when the note is saved", async () => {
+        mockFetch(true);
+        const { attachTag, updateNote } = useNodeStore.getState();
+        attachTag("open-note", "t1");
+
+        await updateNote("open-note", { title: "edit" });
+
+        expect(tagIdsOf("open-note")).toEqual(["t1"]);
     });
 });

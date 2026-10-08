@@ -18,5 +18,6 @@ export function createEmptyNote(
         type: "note",
         createdAt: new Date(),
         parentId,
+        tagIds: [],
     };
 }

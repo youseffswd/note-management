@@ -20,6 +20,7 @@ const note = (id: string, parentId: string | null): Note => ({
     parentId,
     createdAt: new Date("2026-01-01"),
     type: "note",
+    tagIds: [],
 });
 
 /**

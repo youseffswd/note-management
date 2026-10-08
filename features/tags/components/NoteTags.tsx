@@ -2,19 +2,15 @@
 
 import { XIcon } from "lucide-react";
 
+import { useNoteTagIds } from "../hooks/use-note-tag-ids";
 import { useTagsStore } from "../store/tags.store";
 import type { Tag } from "../types";
 import AddTagPopover from "./AddTagPopover";
 import TagBadge from "./TagBadge";
 
-// Stable fallback so the selector does not return a new array every render.
-const NO_TAG_IDS: string[] = [];
-
 /** The note's tags, each removable, plus a picker to add or create more. */
 export default function NoteTags({ noteId }: { noteId: string }) {
-    const tagIds = useTagsStore(
-        state => state.noteTags[noteId] ?? NO_TAG_IDS,
-    );
+    const tagIds = useNoteTagIds(noteId);
     const tagsById = useTagsStore(state => state.tags);
     const removeTagFromNote = useTagsStore(
         state => state.removeTagFromNote,

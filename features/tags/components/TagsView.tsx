@@ -16,7 +16,6 @@ export default function TagsView() {
     const initialized = useNodeStore(state => state.initialized);
     const nodesHash = useNodeStore(state => state.nodesHash);
     const tagsById = useTagsStore(state => state.tags);
-    const noteTags = useTagsStore(state => state.noteTags);
 
     const [activeTagId, setActiveTagId] = useState<string | null>(null);
 
@@ -25,12 +24,12 @@ export default function TagsView() {
     const counts = useMemo(() => {
         const result: Record<string, number> = {};
         for (const note of notes) {
-            for (const tagId of noteTags[note.id] ?? []) {
+            for (const tagId of note.tagIds) {
                 result[tagId] = (result[tagId] ?? 0) + 1;
             }
         }
         return result;
-    }, [notes, noteTags]);
+    }, [notes]);
 
     if (!initialized) {
         return (
@@ -43,7 +42,7 @@ export default function TagsView() {
     const tags = Object.values(tagsById);
     const activeTag = activeTagId ? tagsById[activeTagId] : undefined;
     const visibleNotes = activeTag
-        ? notes.filter(note => noteTags[note.id]?.includes(activeTag.id))
+        ? notes.filter(note => note.tagIds.includes(activeTag.id))
         : notes;
 
     return (
