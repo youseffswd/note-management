@@ -4,8 +4,6 @@
 
 NoteFlow is a responsive note-taking application built independently with modern React and Next.js. It combines a rich-text editor with nested folders, tags, starred notes, search, and account-based data isolation. The project focuses on the parts that make a writing experience dependable: fast optimistic interactions, automatic saving, and local draft recovery when a browser session is interrupted.
 
-> This repository is intended as a code sample for technical reviewers and hiring teams. It demonstrates product-minded frontend work alongside authentication, server-side data access, API design, client-state management, and focused automated testing.
-
 ## Contents
 
 - [What it does](#what-it-does)
