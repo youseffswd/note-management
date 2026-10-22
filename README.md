@@ -28,7 +28,6 @@ NoteFlow is a responsive note-taking application built independently with modern
 ### Writing and recovery
 
 - A rich-text editor powered by BlockNote, supporting structured content such as headings, lists, and checklists.
-- A separate editable note title rather than deriving a title from the first line of the body.
 - Debounced autosave with visible saving, saved, and error states.
 - Local browser drafts, automatic recovery when the server version has not changed, and a clear conflict choice when it has.
 - A safe save pipeline: client updates are optimistic for a responsive UI, and failed requests roll the in-memory state back without discarding the editor content.
@@ -139,47 +138,6 @@ shared/
   lib/                      Supabase clients, time formatting, browser storage, and helpers
 docs/                       Implementation notes and database diagram
 ```
-
-## Getting started
-
-### Prerequisites
-
-- Node.js 20 or newer
-- pnpm
-- A Supabase project with email/password authentication enabled
-
-### Installation
-
-```bash
-git clone https://github.com/youseffswd/note-management.git
-cd note-management
-pnpm install
-```
-
-Create `.env.local` with the public Supabase project credentials:
-
-```bash
-NEXT_PUBLIC_SUPABASE_URL=your_supabase_project_url
-NEXT_PUBLIC_SUPABASE_ANON_KEY=your_supabase_anon_key
-```
-
-Then start the development server:
-
-```bash
-pnpm dev
-```
-
-Visit [http://localhost:3000](http://localhost:3000).
-
-### Useful commands
-
-| Command | Description |
-| --- | --- |
-| `pnpm dev` | Run the local Next.js development server |
-| `pnpm build` | Create a production build |
-| `pnpm start` | Serve a production build |
-| `pnpm test --run` | Run the Vitest suite once |
-| `pnpm lint` | Run ESLint |
 
 ## Data model and security
 
