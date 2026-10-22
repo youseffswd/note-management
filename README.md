@@ -168,12 +168,7 @@ Current result: **10 test files and 83 tests passing**.
 
 `pnpm lint` is included as a project command. At the time this README was written, it reports five existing `react/no-unescaped-entities` errors in the public legal pages and error page; resolving those is a small cleanup item before enforcing lint as a CI gate.
 
-## Current scope and next steps
 
-- **Starred notes are device-local.** They are stored in browser storage and intentionally do not yet sync between devices; notes, folders, tags, and tag assignments are persisted in Supabase.
-- **Database setup should be versioned.** The project has a schema reference, but a complete Supabase migration—including tag tables and Row Level Security policies—would make first-time setup and deployment reproducible.
-- **End-to-end coverage is a natural next layer.** The existing unit and route tests cover core behavior; Playwright-style browser tests could cover authentication, editor recovery, and full workspace journeys.
-- **Collaboration and sharing** would be a meaningful future product expansion once a clear permission model is defined.
 
 ## Repository
 
